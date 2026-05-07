@@ -1,0 +1,25 @@
+@import "tailwindcss";
+
+@theme {
+  /* Brand Colors - Desert Sunset & Neon */
+  --color-background: #0a0a0b;
+  --color-foreground: #ededed;
+  --color-surface: #131316;
+  --color-surface-border: #27272a;
+  --color-desert-orange: #ff6b35;
+  --color-desert-pink: #f72585;
+  --color-neon-cyan: #00f3ff;
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom Sunset Text */
+.text-sunset {
+  background: linear-gradient(to right, var(--color-desert-orange), var(--color-desert-pink));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
