@@ -111,14 +111,15 @@ export default async function Home({
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {events && events.length > 0 ? (
             events.map((event) => (
-              <Link
+              <div
                 key={event.id}
-                href={`/events/${event.id}`}
                 className="bg-surface border border-surface-border rounded-2xl shadow-xl hover:border-desert-orange/50 transition-colors group cursor-pointer overflow-hidden flex flex-col"
               >
+                {/* Image Section */}
                 {event.image_url ? (
                   <div className="w-full aspect-[3/4] md:aspect-[2/3] relative overflow-hidden bg-black">
-                    {/* NEW: DATE BADGE OVERLAY */}
+                    
+                    {/* DATE BADGE OVERLAY */}
                     <div className="absolute top-4 left-4 z-10 bg-surface/95 backdrop-blur-md border border-surface-border rounded-xl flex flex-col items-center justify-center w-14 h-14 shadow-2xl">
                       <span className="text-[10px] font-extrabold uppercase text-desert-orange leading-none mb-1">
                         {getMonth(event.date)}
@@ -127,7 +128,8 @@ export default async function Home({
                         {getDay(event.date)}
                       </span>
                     </div>
-                    {/* NEW: SPONSORED BADGE */}
+
+                    {/* SPONSORED BADGE */}
                     {event.is_featured && (
                       <div className="absolute top-4 right-4 z-10 bg-desert-pink text-white text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest shadow-xl border border-white/20">
                         Sponsored
@@ -141,20 +143,21 @@ export default async function Home({
                     />
                   </div>
                 ) : (
-                  <div className="w-full aspect-[3/4] md:aspect-[2/3] bg-gradient-to-br from-surface-border to-background flex items-center justify-center">
+                  <div className="w-full aspect-[3/4] md:aspect-[2/3] relative bg-gradient-to-br from-surface-border to-background flex items-center justify-center">
+                    
                     {/* Fallback Date Badge if no flyer */}
                     <div className="absolute top-4 left-4 z-10 bg-surface border border-surface-border rounded-xl flex flex-col items-center justify-center w-14 h-14 shadow-xl">
                       <span className="text-[10px] font-extrabold uppercase text-desert-orange leading-none mb-1">{getMonth(event.date)}</span>
                       <span className="text-xl font-black text-foreground leading-none">{getDay(event.date)}</span>
                     </div>
                     
-                    <span className="text-foreground/30 font-medium text-sm">No Flyer</span>
+                    <span className="text-foreground/30 font-medium text-base">No Flyer</span>
                   </div>
                 )}
 
                 <div className="p-5 flex-1 flex flex-col">
                   <div className="flex justify-start items-start mb-4">
-                    <span className="bg-surface-border/50 text-xs font-bold px-3 py-1 rounded-full text-desert-orange uppercase tracking-wide">
+                    <span className="bg-surface-border/50 text-sm font-bold px-3 py-1 rounded-full text-desert-orange uppercase tracking-wide">
                       {event.category}
                     </span>
                   </div>
@@ -162,16 +165,19 @@ export default async function Home({
                   <h3 className="text-2xl font-bold text-foreground mb-2 group-hover:text-desert-pink transition-colors">
                     {event.title}
                   </h3>
-                  <p className="text-sm text-foreground/70 mb-6 line-clamp-2">
+                  
+                  {/* BUMPED TO text-base */}
+                  <p className="text-base text-foreground/80 mb-6 line-clamp-2">
                     {event.description}
                   </p>
 
-                  <div className="mt-auto text-sm opacity-90 space-y-3 bg-background/50 p-4 rounded-lg border border-surface-border/50">
+                  <div className="mt-auto text-base opacity-90 space-y-3 bg-background/50 p-4 rounded-lg border border-surface-border/50">
                     <div>
                       <p className="flex items-center gap-2 font-bold text-foreground mb-1">
                         📍 <span>{event.venue_name}</span>
                       </p>
-                      <p className="pl-6 text-foreground/60 text-xs uppercase tracking-wide">
+                      {/* BUMPED TO text-sm */}
+                      <p className="pl-6 text-foreground/70 text-sm uppercase tracking-wide">
                         {event.address}
                         <br />
                         {event.city},{" "}
@@ -181,21 +187,21 @@ export default async function Home({
 
                     <p className="flex items-center gap-2 pt-2 border-t border-surface-border/50">
                       ⏰{" "}
-                      <span className="font-medium">
+                      <span className="font-medium text-base">
                         {event.start_time.slice(0, 5)} - {event.end_time.slice(0, 5)}
                       </span>
                     </p>
                   </div>
                 </div>
-              </Link>
+              </div>
             ))
           ) : (
             <div className="col-span-full py-16 text-center bg-surface/50 border border-dashed border-surface-border rounded-2xl">
-              <h3 className="text-xl font-bold mb-2">No events found</h3>
-              <p className="text-foreground/60 max-w-sm mx-auto mb-6">
+              <h3 className="text-2xl font-bold mb-2">No events found</h3>
+              <p className="text-foreground/70 text-lg max-w-sm mx-auto mb-6">
                 We couldn't find any upcoming events matching these filters in {selectedCity === "All" ? "the Tri-State area" : selectedCity}.
               </p>
-              <Link href="/submit" className="text-desert-orange font-bold hover:underline">
+              <Link href="/submit" className="text-desert-orange text-lg font-bold hover:underline">
                 Know something happening? Submit it here.
               </Link>
             </div>

@@ -82,35 +82,35 @@ export default function SubmitEvent() {
       <form onSubmit={handleSubmit} className="bg-surface border border-surface-border p-6 md:p-8 rounded-2xl space-y-6">
         
         <div className="border-2 border-dashed border-surface-border rounded-xl p-6 text-center bg-background/50 hover:border-desert-pink transition-colors">
-          <label className="block text-sm font-medium mb-2 cursor-pointer">
+          <label className="block text-base font-medium mb-2 cursor-pointer">
             <span className="text-desert-orange font-bold">Click to upload an Event Flyer</span> (Optional)
-            <input name="flyer" type="file" accept="image/*" className="block w-full text-sm mt-4 text-foreground/70 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-desert-orange file:text-white hover:file:bg-desert-pink cursor-pointer" />
+            <input name="flyer" type="file" accept="image/*" className="block w-full text-base mt-4 text-foreground/70 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-base file:font-semibold file:bg-desert-orange file:text-white hover:file:bg-desert-pink cursor-pointer" />
           </label>
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-2 text-foreground/90">Event Title *</label>
+          <label className="block text-base font-medium mb-2 text-foreground/90">Event Title *</label>
           <input required name="title" type="text" placeholder="e.g. Taco Tuesday at River Grill" className="w-full bg-background border border-surface-border rounded-lg px-4 py-3 text-foreground focus:outline-none focus:border-desert-orange" />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label className="block text-sm font-medium mb-2">Date *</label>
+            <label className="block text-base font-medium mb-2">Date *</label>
             <input required name="date" type="date" className="w-full bg-background border border-surface-border rounded-lg px-4 py-3 focus:outline-none focus:border-desert-orange" />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2">Start Time *</label>
+            <label className="block text-base font-medium mb-2">Start Time *</label>
             <input required name="start_time" type="time" className="w-full bg-background border border-surface-border rounded-lg px-4 py-3 focus:outline-none focus:border-desert-orange" />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2">End Time *</label>
+            <label className="block text-base font-medium mb-2">End Time *</label>
             <input required name="end_time" type="time" className="w-full bg-background border border-surface-border rounded-lg px-4 py-3 focus:outline-none focus:border-desert-orange" />
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium mb-2">City *</label>
+            <label className="block text-base font-medium mb-2">City *</label>
             <select required name="city" className="w-full bg-background border border-surface-border rounded-lg px-4 py-3 focus:outline-none focus:border-desert-orange">
               <option value="">Select a city...</option>
               <option value="Fort Mohave">Fort Mohave</option>
@@ -120,7 +120,7 @@ export default function SubmitEvent() {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2">Category *</label>
+            <label className="block text-base font-medium mb-2">Category *</label>
             <select required name="category" className="w-full bg-background border border-surface-border rounded-lg px-4 py-3 focus:outline-none focus:border-desert-orange">
               <option value="">Select a category...</option>
               <option value="Classes & Workshops">Classes & Workshops</option>
@@ -138,26 +138,26 @@ export default function SubmitEvent() {
         {/* --- NEW ADDRESS SECTION --- */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="md:col-span-2">
-            <label className="block text-sm font-medium mb-2">Venue Name *</label>
+            <label className="block text-base font-medium mb-2">Venue Name *</label>
             <input required name="venue_name" type="text" placeholder="e.g. River City Grill" className="w-full bg-background border border-surface-border rounded-lg px-4 py-3 focus:outline-none focus:border-desert-orange" />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2">Street Address *</label>
+            <label className="block text-base font-medium mb-2">Street Address *</label>
             <input required name="address" type="text" placeholder="e.g. 1234 Riverfront Dr" className="w-full bg-background border border-surface-border rounded-lg px-4 py-3 focus:outline-none focus:border-desert-orange" />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2">Zip Code *</label>
+            <label className="block text-base font-medium mb-2">Zip Code *</label>
             <input required name="zip_code" type="text" placeholder="e.g. 86426" className="w-full bg-background border border-surface-border rounded-lg px-4 py-3 focus:outline-none focus:border-desert-orange" />
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-2">Description *</label>
+          <label className="block text-base font-medium mb-2">Description *</label>
           <textarea required name="description" rows={4} className="w-full bg-background border border-surface-border rounded-lg px-4 py-3 focus:outline-none focus:border-desert-orange"></textarea>
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-2">
+          <label className="block text-base font-medium mb-2">
             Your Email/Phone <span className="text-foreground/50 text-xs font-normal ml-2">(Hidden from public)</span>
           </label>
           <input 
