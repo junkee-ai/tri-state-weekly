@@ -45,10 +45,14 @@ export default async function Home({
     console.error("Supabase Error:", error.message);
   }
 
-  const formatDate = (dateString: string) => {
+  const getMonth = (dateString: string) => {
     const date = new Date(dateString);
-    const localDate = new Date(date.getTime() + date.getTimezoneOffset() * 60000);
-    return localDate.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    return new Date(date.getTime() + date.getTimezoneOffset() * 60000).toLocaleDateString("en-US", { month: "short" });
+  };
+
+  const getDay = (dateString: string) => {
+    const date = new Date(dateString);
+    return new Date(date.getTime() + date.getTimezoneOffset() * 60000).toLocaleDateString("en-US", { day: "numeric" });
   };
 
   const cities = ["All", "Fort Mohave", "Bullhead City", "Laughlin", "Needles"];
@@ -114,7 +118,15 @@ export default async function Home({
               >
                 {event.image_url ? (
                   <div className="w-full aspect-[3/4] md:aspect-[2/3] relative overflow-hidden bg-black">
-                    
+                    {/* NEW: DATE BADGE OVERLAY */}
+                    <div className="absolute top-4 left-4 z-10 bg-surface/95 backdrop-blur-md border border-surface-border rounded-xl flex flex-col items-center justify-center w-14 h-14 shadow-2xl">
+                      <span className="text-[10px] font-extrabold uppercase text-desert-orange leading-none mb-1">
+                        {getMonth(event.date)}
+                      </span>
+                      <span className="text-xl font-black text-foreground leading-none">
+                        {getDay(event.date)}
+                      </span>
+                    </div>
                     {/* NEW: SPONSORED BADGE */}
                     {event.is_featured && (
                       <div className="absolute top-4 right-4 z-10 bg-desert-pink text-white text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest shadow-xl border border-white/20">
@@ -130,17 +142,20 @@ export default async function Home({
                   </div>
                 ) : (
                   <div className="w-full aspect-[3/4] md:aspect-[2/3] bg-gradient-to-br from-surface-border to-background flex items-center justify-center">
+                    {/* Fallback Date Badge if no flyer */}
+                    <div className="absolute top-4 left-4 z-10 bg-surface border border-surface-border rounded-xl flex flex-col items-center justify-center w-14 h-14 shadow-xl">
+                      <span className="text-[10px] font-extrabold uppercase text-desert-orange leading-none mb-1">{getMonth(event.date)}</span>
+                      <span className="text-xl font-black text-foreground leading-none">{getDay(event.date)}</span>
+                    </div>
+                    
                     <span className="text-foreground/30 font-medium text-sm">No Flyer</span>
                   </div>
                 )}
 
                 <div className="p-5 flex-1 flex flex-col">
-                  <div className="flex justify-between items-start mb-4">
+                  <div className="flex justify-start items-start mb-4">
                     <span className="bg-surface-border/50 text-xs font-bold px-3 py-1 rounded-full text-desert-orange uppercase tracking-wide">
                       {event.category}
-                    </span>
-                    <span className="text-sm font-medium opacity-70">
-                      {formatDate(event.date)}
                     </span>
                   </div>
 
