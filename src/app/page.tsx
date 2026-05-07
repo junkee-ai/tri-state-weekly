@@ -70,7 +70,7 @@ export default async function Home({
         <div className="flex flex-col gap-4 mb-8">
           
           {/* Top Row: Cities (Cyan title removed) */}
-          <div className="flex flex-wrap gap-2 w-full mb-2">
+          <div className="flex flex-wrap justify-center md:justify-start gap-2 w-full mb-4">
             {cities.map((city) => {
               const queryParams = new URLSearchParams();
               if (selectedCategory !== "All") queryParams.set("category", selectedCategory);
