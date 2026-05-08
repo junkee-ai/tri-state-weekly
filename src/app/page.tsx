@@ -111,8 +111,9 @@ export default async function Home({
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {events && events.length > 0 ? (
             events.map((event) => (
-              <div
+              <Link
                 key={event.id}
+                href={`/events/${event.id}`}
                 className="bg-surface border border-surface-border rounded-2xl shadow-xl hover:border-desert-orange/50 transition-colors group cursor-pointer overflow-hidden flex flex-col"
               >
                 {/* Image Section */}
@@ -194,7 +195,7 @@ export default async function Home({
                  </p>
                   </div>
                 </div>
-              </div>
+              </Link>
             ))
           ) : (
             <div className="col-span-full py-16 text-center bg-surface/50 border border-dashed border-surface-border rounded-2xl">
