@@ -29,15 +29,23 @@ export default async function Home({
     .order("is_featured", { ascending: false })
     .order("date", { ascending: true }); 
 
+  // 3. Apply Filters
   if (selectedCity !== "All") query = query.eq("city", selectedCity);
   if (selectedCategory !== "All") query = query.eq("category", selectedCategory);
   
   if (selectedDate === "Today") {
     query = query.eq("date", todayStr);
-  } else if (selectedDate === "Next 7 Days") {
-    query = query.gte("date", todayStr).lte("date", nextWeekStr);
+  } else if (selectedDate === "This Weekend") {
+    query = query.gte("date", thisFridayStr).lte("date", thisSundayStr);
+  } else if (selectedDate.length === 7 && selectedDate.includes("-")) {
+    // MAGIC MONTH LOGIC: If it looks like "2024-08", calculate the month!
+    const [year, month] = selectedDate.split("-").map(Number);
+    const startOfMonth = new Date(year, month - 1, 1).toISOString().split("T")[0];
+    const endOfMonth = new Date(year, month, 0).toISOString().split("T")[0];
+    
+    query = query.gte("date", startOfMonth).lte("date", endOfMonth);
   } else {
-    query = query.gte("date", todayStr);
+    query = query.gte("date", todayStr); // Default (All)
   }
 
   const { data: events, error } = await query;
