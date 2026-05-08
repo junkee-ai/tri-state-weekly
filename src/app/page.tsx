@@ -186,11 +186,12 @@ export default async function Home({
                     </div>
 
                     <p className="flex items-center gap-2 pt-2 border-t border-surface-border/50">
-                      ⏰{" "}
-                      <span className="font-medium text-base">
-                        {event.start_time.slice(0, 5)} - {event.end_time.slice(0, 5)}
-                      </span>
-                    </p>
+                   ⏰{" "}
+                   <span className="font-medium text-base">
+                     {event.start_time.slice(0, 5)} 
+                     {event.end_time ? ` - ${event.end_time.slice(0, 5)}` : ""}
+                   </span>
+                 </p>
                   </div>
                 </div>
               </div>

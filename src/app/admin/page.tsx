@@ -164,7 +164,7 @@ export default function AdminDashboard() {
                       <p className="text-sm text-foreground/70 line-clamp-3">{event.description}</p>
                       <div className="text-xs text-foreground/50 pt-2 border-t border-surface-border mt-2">
                         <p><strong>Venue:</strong> {event.venue_name} ({event.address}, {event.zip_code})</p>
-                        <p><strong>Date/Time:</strong> {event.date} | {event.start_time.slice(0,5)} - {event.end_time.slice(0,5)}</p>
+                        <p><strong>Date/Time:</strong> {event.date} | {event.start_time.slice(0,5)} {event.end_time ? `- ${event.end_time.slice(0,5)}` : ""}</p>
                         <p><strong>Submitter:</strong> {event.submitter_info || 'None provided'}</p>
                       </div>
                     </>

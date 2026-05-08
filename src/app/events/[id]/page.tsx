@@ -89,7 +89,10 @@ export default async function EventDetails({
               </div>
               <div className="pt-1">
                 <h3 className="font-bold text-foreground text-lg mb-1">Time</h3>
-                <p className="text-foreground/70">{event.start_time.slice(0, 5)} - {event.end_time.slice(0, 5)}</p>
+                <p className="text-foreground/70">
+                  {event.start_time.slice(0, 5)} 
+                  {event.end_time ? ` - ${event.end_time.slice(0, 5)}` : ""}
+                </p>
               </div>
             </div>
 
