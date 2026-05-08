@@ -1,12 +1,8 @@
-"use client";
-
-import { useState } from "react";
 import Link from "next/link";
 
+// Notice we removed "use client" and "useState" because we don't need them anymore!
 export default function EventFeed({ events }: { events: any[] }) {
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-
-  // WE MOVED THESE HERE!
+  
   const getMonth = (dateString: string) => {
     const date = new Date(dateString);
     return new Date(date.getTime() + date.getTimezoneOffset() * 60000).toLocaleDateString("en-US", { month: "short" });
@@ -32,38 +28,20 @@ export default function EventFeed({ events }: { events: any[] }) {
   }
 
   return (
-    <div className="w-full">
-      {/* --- VIEW TOGGLE BUTTONS --- */}
-      <div className="flex justify-start md:justify-end mb-6">
-        <div className="flex w-full md:w-auto bg-surface border border-surface-border rounded-lg p-1 shadow-sm">
-          <button 
-            onClick={() => setViewMode("grid")}
-            className={`flex-1 md:flex-none px-4 py-1.5 text-sm font-bold rounded-md transition-all ${viewMode === "grid" ? "bg-desert-orange text-white shadow-md" : "text-foreground/50 hover:text-foreground"}`}
-          >
-            Grid View
-          </button>
-          <button 
-            onClick={() => setViewMode("list")}
-            className={`flex-1 md:flex-none px-4 py-1.5 text-sm font-bold rounded-md transition-all ${viewMode === "list" ? "bg-neon-cyan text-black shadow-md" : "text-foreground/50 hover:text-foreground"}`}
-          >
-            List View
-          </button>
-        </div>
-      </div>
-
-      {/* --- THE FEED --- */}
-      <div className={viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" : "flex flex-col gap-4"}>
+    <div className="w-full mt-4">
+      
+      {/* --- THE FEED (LIST VIEW ONLY) --- */}
+      <div className="flex flex-col gap-5">
         {events.map((event) => (
           <Link
             key={event.id}
             href={`/events/${event.id}`}
-            className={`bg-surface border border-surface-border rounded-2xl shadow-xl hover:border-desert-orange/50 transition-colors group cursor-pointer overflow-hidden ${
-              viewMode === "grid" ? "flex flex-col" : "flex flex-col md:flex-row items-center md:items-stretch"
-            }`}
+            className="bg-surface border border-surface-border rounded-2xl shadow-xl hover:border-desert-orange/50 transition-colors group cursor-pointer overflow-hidden flex flex-col md:flex-row items-center md:items-stretch"
           >
             
-            {/* IMAGE SECTION */}
-            <div className={`relative bg-surface overflow-hidden ${viewMode === "grid" ? "w-full aspect-[3/4] md:aspect-[2/3]" : "w-full md:w-48 md:shrink-0 h-48 md:h-full"}`}>
+            {/* IMAGE SECTION (Square on desktop, wide on mobile) */}
+            <div className="relative bg-surface overflow-hidden w-full md:w-56 md:shrink-0 h-56 md:h-auto">
+              
               <div className="absolute top-4 left-4 z-20 bg-surface/95 backdrop-blur-md border border-surface-border rounded-xl flex flex-col items-center justify-center w-14 h-14 shadow-xl">
                 <span className="text-[10px] font-extrabold uppercase text-desert-orange leading-none mb-1">{getMonth(event.date)}</span>
                 <span className="text-xl font-black text-foreground leading-none">{getDay(event.date)}</span>
@@ -88,9 +66,10 @@ export default function EventFeed({ events }: { events: any[] }) {
             </div>
 
             {/* TEXT SECTION */}
-            <div className={`p-5 flex flex-col flex-1 ${viewMode === "grid" ? "w-full" : "w-full justify-center"}`}>
+            <div className="p-5 md:p-6 flex flex-col flex-1 w-full justify-center">
+              
               <div className="flex justify-start items-start mb-2">
-                <span className="bg-surface-border/50 text-sm font-bold px-3 py-1 rounded-full text-desert-orange uppercase tracking-wide">
+                <span className="bg-surface-border/50 text-xs font-bold px-3 py-1 rounded-full text-desert-orange uppercase tracking-wide">
                   {event.category}
                 </span>
               </div>
@@ -99,16 +78,16 @@ export default function EventFeed({ events }: { events: any[] }) {
                 {event.title}
               </h3>
               
-              <p className={`text-base text-foreground/80 ${viewMode === "grid" ? "mb-6 line-clamp-2" : "mb-4 line-clamp-1"}`}>
+              <p className="text-base text-foreground/80 mb-4 line-clamp-2">
                 {event.description}
               </p>
 
-              <div className={`text-base opacity-90 space-y-2 bg-background/50 p-4 rounded-lg border border-surface-border/50 ${viewMode === "grid" ? "mt-auto" : "mt-0"}`}>
+              <div className="text-sm md:text-base opacity-90 space-y-2 bg-background/50 p-4 rounded-lg border border-surface-border/50 mt-auto">
                 <div>
                   <p className="flex items-center gap-2 font-bold text-foreground mb-1">
                     📍 <span>{event.venue_name}</span>
                   </p>
-                  <p className="pl-6 text-foreground/70 text-sm uppercase tracking-wide">
+                  <p className="pl-6 text-foreground/70 text-xs md:text-sm uppercase tracking-wide">
                     {event.address} | {event.city}
                   </p>
                 </div>
@@ -116,6 +95,7 @@ export default function EventFeed({ events }: { events: any[] }) {
                   ⏰ <span className="font-medium text-base">{event.start_time.slice(0, 5)} {event.end_time ? `- ${event.end_time.slice(0, 5)}` : ""}</span>
                 </p>
               </div>
+
             </div>
 
           </Link>
