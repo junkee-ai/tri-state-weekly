@@ -53,7 +53,13 @@ export default function AdminDashboard() {
     const { error } = await supabase.from("events").update({ is_featured: !currentStatus }).eq("id", id);
     if (!error) setAllEvents(allEvents.map(e => e.id === id ? { ...e, is_featured: !currentStatus } : e));
   }
-
+  // NEW: Duplicate Event Function
+  function handleDuplicate(event: any) {
+    // Strip out the old ID so the database knows it is a brand new event
+    const { id, created_at, ...duplicatedData } = event; 
+    setEditingId("new_duplicate"); // Special flag for our save button
+    setEditFormData({ ...duplicatedData, is_approved: true }); 
+  }
   // Editing
   function startEditing(event: any) {
     setEditingId(event.id);
@@ -65,13 +71,22 @@ export default function AdminDashboard() {
   }
 
   async function handleSave(id: string) {
-    const { error } = await supabase.from("events").update({ ...editFormData, is_approved: true }).eq("id", id);
-    if (!error) {
-      setAllEvents(allEvents.map(e => e.id === id ? { ...editFormData, is_approved: true } : e));
-      setEditingId(null);
-      alert("Changes saved!");
+    if (editingId === "new_duplicate") {
+      // It's a duplicate, so INSERT a new row
+      const { error } = await supabase.from("events").insert([editFormData]);
+      if (!error) {
+        fetchEvents(); // Reload the dashboard to show the new event
+        setEditingId(null);
+        alert("Event duplicated successfully!");
+      } else alert("Error duplicating: " + error.message);
     } else {
-      alert("Error saving: " + error.message);
+      // It's a normal edit, so UPDATE the existing row
+      const { error } = await supabase.from("events").update({ ...editFormData, is_approved: true }).eq("id", id);
+      if (!error) {
+        setAllEvents(allEvents.map(e => e.id === id ? { ...editFormData, is_approved: true } : e));
+        setEditingId(null);
+        alert("Changes saved!");
+      } else alert("Error saving: " + error.message);
     }
   }
 
@@ -191,7 +206,12 @@ export default function AdminDashboard() {
                     </>
                   ) : (
                     <>
-                      {/* NEW: PIN BUTTON */}
+                      {/* NEW: DUPLICATE BUTTON */}
+                      <button onClick={() => handleDuplicate(event)} className="bg-neon-cyan/20 hover:bg-neon-cyan text-neon-cyan hover:text-black font-bold py-2 px-4 rounded-lg transition-colors border border-neon-cyan w-full">
+                        Duplicate
+                      </button>
+
+                      {/* PIN BUTTON */}
                       <button onClick={() => handleToggleFeature(event.id, event.is_featured)} className={`${event.is_featured ? 'bg-surface-border text-foreground' : 'bg-desert-pink hover:bg-desert-pink/80 text-white'} font-bold py-2 px-4 rounded-lg transition-colors shadow-lg w-full`}>
                         {event.is_featured ? "Unpin Event" : "Pin (Sponsored)"}
                       </button>
