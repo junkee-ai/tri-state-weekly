@@ -9,6 +9,7 @@ export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<"pending" | "live">("pending");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editFormData, setEditFormData] = useState<any>({});
+  const [isDuplicateMode, setIsDuplicateMode] = useState(false);
 
   async function fetchEvents() {
     const { data, error } = await supabase
@@ -55,14 +56,15 @@ export default function AdminDashboard() {
   }
   // NEW: Duplicate Event Function
   function handleDuplicate(event: any) {
-    // Strip out the old ID so the database knows it is a brand new event
     const { id, created_at, ...duplicatedData } = event; 
-    setEditingId("new_duplicate"); // Special flag for our save button
+    setEditingId(event.id); // Open the form on the card they clicked
+    setIsDuplicateMode(true); // Tell the app we are making a copy
     setEditFormData({ ...duplicatedData, is_approved: true }); 
   }
-  // Editing
+  // Normal Edit Function
   function startEditing(event: any) {
     setEditingId(event.id);
+    setIsDuplicateMode(false); // Tell the app this is a normal edit
     setEditFormData({ ...event });
   }
 
@@ -70,13 +72,15 @@ export default function AdminDashboard() {
     setEditFormData({ ...editFormData, [e.target.name]: e.target.value });
   }
 
+  // Save Function
   async function handleSave(id: string) {
-    if (editingId === "new_duplicate") {
+    if (isDuplicateMode) {
       // It's a duplicate, so INSERT a new row
       const { error } = await supabase.from("events").insert([editFormData]);
       if (!error) {
-        fetchEvents(); // Reload the dashboard to show the new event
+        fetchEvents(); 
         setEditingId(null);
+        setIsDuplicateMode(false);
         alert("Event duplicated successfully!");
       } else alert("Error duplicating: " + error.message);
     } else {
@@ -195,8 +199,12 @@ export default function AdminDashboard() {
                 <div className="flex md:flex-col gap-3 shrink-0 justify-center min-w-[140px]">
                   {isEditing ? (
                     <>
-                      <button onClick={() => handleSave(event.id)} className="bg-neon-cyan hover:bg-neon-cyan/80 text-black font-bold py-2 px-4 rounded-lg transition-colors w-full">Save Changes</button>
-                      <button onClick={() => setEditingId(null)} className="bg-surface-border hover:bg-surface-border/80 text-white font-bold py-2 px-4 rounded-lg transition-colors w-full">Cancel</button>
+                      <button onClick={() => handleSave(event.id)} className="bg-neon-cyan hover:bg-neon-cyan/80 text-black font-bold py-2 px-4 rounded-lg transition-colors w-full">
+                        {isDuplicateMode ? "Save as New Event" : "Save Changes"}
+                      </button>
+                      <button onClick={() => { setEditingId(null); setIsDuplicateMode(false); }} className="bg-surface-border hover:bg-surface-border/80 text-white font-bold py-2 px-4 rounded-lg transition-colors w-full">
+                        Cancel
+                      </button>
                     </>
                   ) : activeTab === "pending" ? (
                     <>
