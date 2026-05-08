@@ -1,6 +1,5 @@
 import Link from "next/link";
 
-// Notice we removed "use client" and "useState" because we don't need them anymore!
 export default function EventFeed({ events }: { events: any[] }) {
   
   const getMonth = (dateString: string) => {
@@ -13,7 +12,29 @@ export default function EventFeed({ events }: { events: any[] }) {
     return new Date(date.getTime() + date.getTimezoneOffset() * 60000).toLocaleDateString("en-US", { day: "numeric" });
   };
 
-  if (!events || events.length === 0) {
+  // --- THE DE-CLUTTER MAGIC ---
+  // Group events by title and venue name to find duplicates
+  const groupedEvents: any[] = [];
+  const seenKeys = new Set();
+
+  events.forEach((event) => {
+    // We create a unique key combining title and venue
+    const uniqueKey = `${event.title}-${event.venue_name}`.toLowerCase();
+    
+    if (!seenKeys.has(uniqueKey)) {
+      // This is the FIRST time we are seeing this event. Let's find out if it repeats.
+      const duplicates = events.filter(e => `${e.title}-${e.venue_name}`.toLowerCase() === uniqueKey);
+      
+      groupedEvents.push({
+        ...event,
+        is_recurring: duplicates.length > 1, // Flag it if there are future versions!
+      });
+      
+      seenKeys.add(uniqueKey); // Mark it so we ignore the future duplicates in the feed
+    }
+  });
+
+  if (!groupedEvents || groupedEvents.length === 0) {
     return (
       <div className="col-span-full py-16 text-center bg-surface/50 border border-dashed border-surface-border rounded-2xl">
         <h3 className="text-2xl font-bold mb-2">No events found</h3>
@@ -29,17 +50,14 @@ export default function EventFeed({ events }: { events: any[] }) {
 
   return (
     <div className="w-full mt-4">
-      
-      {/* --- THE FEED (LIST VIEW ONLY) --- */}
       <div className="flex flex-col gap-5">
-        {events.map((event) => (
+        {groupedEvents.map((event) => (
           <Link
             key={event.id}
             href={`/events/${event.id}`}
-            className="bg-surface border border-surface-border rounded-2xl shadow-xl hover:border-desert-orange/50 transition-colors group cursor-pointer overflow-hidden flex flex-col md:flex-row items-center md:items-stretch"
+            className="bg-surface border border-surface-border rounded-2xl shadow-xl hover:border-desert-orange/50 transition-colors group cursor-pointer overflow-hidden flex flex-col md:flex-row items-center md:items-stretch relative"
           >
             
-            {/* IMAGE SECTION (Square on desktop, wide on mobile) */}
             <div className="relative bg-surface overflow-hidden w-full md:w-56 md:shrink-0 h-56 md:h-auto">
               
               <div className="absolute top-4 left-4 z-20 bg-surface/95 backdrop-blur-md border border-surface-border rounded-xl flex flex-col items-center justify-center w-14 h-14 shadow-xl">
@@ -65,13 +83,19 @@ export default function EventFeed({ events }: { events: any[] }) {
               )}
             </div>
 
-            {/* TEXT SECTION */}
             <div className="p-5 md:p-6 flex flex-col flex-1 w-full justify-center">
               
-              <div className="flex justify-start items-start mb-2">
+              <div className="flex justify-start items-center mb-2 gap-2">
                 <span className="bg-surface-border/50 text-xs font-bold px-3 py-1 rounded-full text-desert-orange uppercase tracking-wide">
                   {event.category}
                 </span>
+                
+                {/* NEW: RECURRING BADGE */}
+                {event.is_recurring && (
+                  <span className="text-neon-cyan/80 text-xs font-bold border border-neon-cyan/20 bg-neon-cyan/5 px-2 py-1 rounded-md flex items-center gap-1">
+                    ↻ Repeats
+                  </span>
+                )}
               </div>
 
               <h3 className="text-2xl font-bold text-foreground mb-2 group-hover:text-desert-pink transition-colors">
