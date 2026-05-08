@@ -118,10 +118,10 @@ export default async function Home({
               >
                 {/* Image Section */}
                 {event.image_url ? (
-                  <div className="w-full aspect-[3/4] md:aspect-[2/3] relative overflow-hidden bg-black">
+                  <div className="w-full aspect-[3/4] md:aspect-[2/3] relative overflow-hidden bg-surface">
                     
                     {/* DATE BADGE OVERLAY */}
-                    <div className="absolute top-4 left-4 z-10 bg-surface/95 backdrop-blur-md border border-surface-border rounded-xl flex flex-col items-center justify-center w-14 h-14 shadow-2xl">
+                    <div className="absolute top-4 left-4 z-20 bg-surface/95 backdrop-blur-md border border-surface-border rounded-xl flex flex-col items-center justify-center w-14 h-14 shadow-2xl">
                       <span className="text-[10px] font-extrabold uppercase text-desert-orange leading-none mb-1">
                         {getMonth(event.date)}
                       </span>
@@ -132,10 +132,23 @@ export default async function Home({
 
                     {/* SPONSORED BADGE */}
                     {event.is_featured && (
-                      <div className="absolute top-4 right-4 z-10 bg-desert-pink text-white text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest shadow-xl border border-white/20">
+                      <div className="absolute top-4 right-4 z-20 bg-desert-pink text-white text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest shadow-xl border border-white/20">
                         Sponsored
                       </div>
                     )}
+
+                    {/* BLURRED BACKGROUND (Fills the box) */}
+                    <div 
+                      className="absolute inset-0 opacity-40 blur-2xl scale-110 group-hover:scale-125 transition-transform duration-700"
+                      style={{ backgroundImage: `url(${event.image_url})`, backgroundPosition: 'center', backgroundSize: 'cover' }}
+                    ></div>
+
+                    {/* FOREGROUND FLYER (Fits perfectly without cropping) */}
+                    <img
+                      src={event.image_url}
+                      alt={event.title}
+                      className="relative z-10 w-full h-full object-contain group-hover:scale-105 transition-transform duration-500 drop-shadow-2xl"
+                    />
 
                     <img
                       src={event.image_url}
