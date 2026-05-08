@@ -19,7 +19,7 @@ export function middleware(req: NextRequest) {
   const [username, password] = decodedValue.split(':');
 
   // Check it against your secret .env password
-  const validPassword = process.env.ADMIN_PASSWORD;
+  const validPassword = "Gonja420!";
 
   // We hardcode the username to 'admin' for simplicity
   if (username === 'admin' && password === validPassword) {
