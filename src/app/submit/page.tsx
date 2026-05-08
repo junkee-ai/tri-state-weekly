@@ -73,12 +73,6 @@ export default function SubmitEvent() {
         Hosting something cool in the tri-state area? Let the community know. 
       </p>
 
-      {success && (
-        <div className="bg-neon-cyan/20 border border-neon-cyan text-neon-cyan p-4 rounded-xl mb-8">
-          🎉 Awesome! Your event has been submitted and is pending approval.
-        </div>
-      )}
-
       <form onSubmit={handleSubmit} className="bg-surface border border-surface-border p-6 md:p-8 rounded-2xl space-y-6">
         
         <div className="border-2 border-dashed border-surface-border rounded-xl p-6 text-center bg-background/50 hover:border-desert-pink transition-colors">
@@ -171,6 +165,11 @@ export default function SubmitEvent() {
         <button type="submit" disabled={isSubmitting} className="w-full bg-desert-orange hover:bg-desert-pink text-white font-bold py-4 rounded-xl transition-colors shadow-lg disabled:opacity-50">
           {isSubmitting ? "Uploading & Submitting..." : "Submit Event"}
         </button>
+        {success && (
+        <div className="bg-neon-cyan/20 border border-neon-cyan text-neon-cyan p-4 rounded-xl mb-8">
+          🎉 Awesome! Your event(s) have been submitted and are pending approval.
+        </div>
+      )}
       </form>
     </main>
   );
