@@ -73,10 +73,10 @@ export default async function Home({
       <section>
         
         {/* --- CONTROLS HEADER --- */}
-        <div className="flex flex-col gap-4 mb-8">
+        <div className="flex flex-col mb-6">
           
-          {/* Changed justify-center to justify-start so they read left-to-right nicely */}
-          <div className="flex flex-wrap justify-start gap-2 w-full mb-4">
+          {/* Cities: Centered on mobile, Left-aligned on desktop, reduced bottom spacing */}
+          <div className="flex flex-wrap justify-center md:justify-start gap-2 w-full pb-4">
             {cities.map((city) => {
               const queryParams = new URLSearchParams();
               if (selectedCategory !== "All") queryParams.set("category", selectedCategory);
@@ -102,7 +102,8 @@ export default async function Home({
             })}
           </div>
 
-          <div className="flex justify-start pt-4 mt-2 border-t border-surface-border/20">
+          {/* Dropdowns: Removed extra top margin, keeping it tight to the border */}
+          <div className="flex justify-start pt-4 border-t border-surface-border/20">
             <DropdownFilters />
           </div>
 
