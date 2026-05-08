@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 import DropdownFilters from "@/components/DropdownFilters";
@@ -111,8 +112,10 @@ export default async function Home({
           </div>
 
           {/* Dropdowns: Removed extra top margin, keeping it tight to the border */}
-          <div className="flex justify-start pt-4 border-t border-surface-border/20">
-            <DropdownFilters />
+          <div className="flex justify-start pt-4 mt-2 border-t border-surface-border/20">
+            <Suspense fallback={<div className="h-10 w-full animate-pulse bg-surface-border/50 rounded-lg"></div>}>
+              <DropdownFilters />
+            </Suspense>
           </div>
 
         </div>
