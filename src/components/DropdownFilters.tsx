@@ -24,7 +24,7 @@ export default function DropdownFilters() {
   };
 
   return (
-    <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
+    <div className="grid grid-cols-2 md:flex md:flex-row gap-3 w-full md:w-auto">
       
       {/* Category Dropdown */}
       <select 
