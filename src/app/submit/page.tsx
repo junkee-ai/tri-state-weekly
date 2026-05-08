@@ -149,6 +149,7 @@ export default function SubmitEvent() {
               <option value="Live Music">Live Music</option>
               <option value="Nightlife">Nightlife</option>
               <option value="Food & Drink">Food & Drink</option>
+              <option value="Comedy">Comedy</option> {/* <-- ADDED HERE */}
               <option value="Community">Community</option>
               <option value="Family">Family</option>
               <option value="Outdoor & River">Outdoor & River</option>
