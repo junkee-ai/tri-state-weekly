@@ -1,7 +1,8 @@
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 import DropdownFilters from "@/components/DropdownFilters";
-import EventFeed from "@/components/EventFeed"; 
+import EventFeed from "@/components/EventFeed";
+import NewsletterPopup from "@/components/NewsletterPopup";
 import { Suspense } from "react";
 
 export const dynamic = "force-dynamic";
@@ -98,6 +99,12 @@ export default async function Home({
 
         <EventFeed events={events || []} />
       </section>
+      <EventFeed events={events || []} />
+      </section>
+
+      {/* THE SMART GATE */}
+      <NewsletterPopup />
+
     </main>
   );
 }
