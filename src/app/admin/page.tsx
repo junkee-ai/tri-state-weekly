@@ -107,9 +107,9 @@ export default function AdminDashboard() {
     }
   }
 
-  // --- AI GENERATOR ---
+  // --- UPGRADED AI GENERATOR ---
   async function handleAIGenerate() {
-    if (!aiText) return alert("Please paste some text first!");
+    if (!aiText) return alert("Please paste text or a URL first!");
     setIsAiLoading(true);
 
     try {
@@ -121,13 +121,28 @@ export default function AdminDashboard() {
 
       const result = await response.json();
 
-      if (response.ok) {
-        setEditingId("ai_new_event");
-        setIsDuplicateMode(true);
-        setEditFormData({ ...result.data, is_approved: true });
-        setAiText(""); 
+      if (response.ok && result.data.length > 0) {
+        
+        // Force all new events to be unapproved (Pending)
+        const eventsToInsert = result.data.map((event: any) => ({
+          ...event,
+          is_approved: false
+        }));
+
+        // Insert them all into the database instantly!
+        const { error } = await supabase.from("events").insert(eventsToInsert);
+
+        if (!error) {
+          alert(`Success! Imported ${eventsToInsert.length} event(s) into your Pending tab.`);
+          setAiText(""); 
+          setActiveTab("pending"); // Switch to pending tab so they can see them
+          fetchEvents(); // Reload the list
+        } else {
+          alert("Database Error: " + error.message);
+        }
+
       } else {
-        alert("AI Error: " + result.error);
+        alert("AI Error: Could not find any events. " + (result.error || ""));
       }
     } catch (error: any) {
       alert("Failed to reach AI: " + error.message);

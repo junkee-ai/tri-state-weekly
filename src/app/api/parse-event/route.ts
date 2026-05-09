@@ -5,7 +5,6 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-// Notice there is NO "default" keyword here! Just "export async function POST"
 export async function POST(req: Request) {
   try {
     const { text } = await req.json();
@@ -14,13 +13,29 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "No text provided" }, { status: 400 });
     }
 
-    const systemPrompt = `
-      You are an expert data extractor for a local events website in the Tri-State area (Fort Mohave, Bullhead City, Laughlin, Needles).
-      A user will give you raw, messy text from a Facebook post or flyer.
-      Extract the event details and format them EXACTLY as a JSON object with the following keys. 
-      If you cannot find a piece of information, leave the value as an empty string "".
+    let contentToParse = text;
 
-      JSON Keys required:
+    // --- NEW: MAGIC URL READER ---
+    // If the user pasted a URL, read the website instead of treating it as raw text!
+    if (text.startsWith("http://") || text.startsWith("https://")) {
+      const jinaResponse = await fetch(`https://r.jina.ai/${text}`);
+      if (!jinaResponse.ok) {
+        throw new Error("Failed to read the website URL.");
+      }
+      contentToParse = await jinaResponse.text();
+    }
+
+    // --- NEW: MULTI-EVENT PROMPT ---
+    const systemPrompt = `
+      You are an expert data extractor for a local events website in the Tri-State area (Fort Mohave, Bullhead City, Laughlin, Needles, Mohave Valley).
+      A user will give you either raw text from a flyer, OR the full text of a casino/venue calendar page.
+      Find EVERY SINGLE EVENT mentioned in the text.
+      
+      Return a JSON object with a single key called "events". The value must be an ARRAY of event objects.
+      If you only find 1 event, return an array with 1 object.
+      If you cannot find a piece of information for a specific event, leave the value as an empty string "".
+
+      JSON Keys required for EACH event object:
       - title (String: Catchy event title)
       - date (String: YYYY-MM-DD format. Assume the current year is ${new Date().getFullYear()} if not specified)
       - start_time (String: HH:MM format in 24-hour time. e.g. 8:00 PM is 20:00)
@@ -35,18 +50,19 @@ export async function POST(req: Request) {
     `;
 
     const response = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
+      model: "gpt-4o-mini", // Upgraded model to handle massive webpage text!
       response_format: { type: "json_object" },
       messages: [
         { role: "system", content: systemPrompt },
-        { role: "user", content: text },
+        { role: "user", content: contentToParse },
       ],
     });
 
     const aiResult = response.choices[0].message.content;
     const parsedData = JSON.parse(aiResult || "{}");
 
-    return NextResponse.json({ data: parsedData });
+    // Send the array of events back to the dashboard
+    return NextResponse.json({ data: parsedData.events || [] });
 
   } catch (error: any) {
     console.error("AI Parsing Error:", error);
