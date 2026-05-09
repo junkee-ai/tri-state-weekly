@@ -130,10 +130,18 @@ export default function AdminDashboard() {
 
       if (response.ok && result.data.length > 0) {
         
-        // Force all new events to be unapproved (Pending)
+        // Clean up the AI data before sending to the database
         const eventsToInsert = result.data.map((event: any) => ({
           ...event,
-          is_approved: false
+          is_approved: false, // Force it to be pending
+          
+          // Safety Check: If AI sends an empty string for times, fix them so the DB doesn't crash
+          start_time: event.start_time && event.start_time !== "" ? event.start_time : "12:00", // Default to Noon if missing
+          end_time: event.end_time && event.end_time !== "" ? event.end_time : null,
+          
+          // Safety Check: If AI leaves mandatory fields blank, add a placeholder
+          title: event.title || "Unknown Event Title",
+          date: event.date || new Date().toISOString().split("T")[0], // Default to today
         }));
 
         // Insert them all into the database instantly!
