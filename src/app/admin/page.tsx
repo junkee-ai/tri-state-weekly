@@ -12,9 +12,9 @@ export default function AdminDashboard() {
   const [editFormData, setEditFormData] = useState<any>({});
   const [isDuplicateMode, setIsDuplicateMode] = useState(false);
 
-  // NEW: AI State
   const [aiText, setAiText] = useState("");
   const [isAiLoading, setIsAiLoading] = useState(false);
+  const [isUploading, setIsUploading] = useState(false); // NEW: Tracks image upload status
 
   async function fetchEvents() {
     const { data, error } = await supabase.from("events").select("*").order("created_at", { ascending: false });
@@ -68,6 +68,26 @@ export default function AdminDashboard() {
     setEditFormData({ ...editFormData, [e.target.name]: e.target.value });
   }
 
+  // --- NEW: DIRECT IMAGE UPLOAD FOR ADMIN ---
+  async function handleAdminImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Date.now()}.${fileExt}`;
+
+    const { error } = await supabase.storage.from("flyers").upload(fileName, file);
+    
+    if (error) {
+      alert("Upload failed: " + error.message);
+    } else {
+      const { data } = supabase.storage.from("flyers").getPublicUrl(fileName);
+      setEditFormData({ ...editFormData, image_url: data.publicUrl });
+    }
+    setIsUploading(false);
+  }
+
   async function handleSave(id: string) {
     if (isDuplicateMode) {
       const { error } = await supabase.from("events").insert([editFormData]);
@@ -87,7 +107,7 @@ export default function AdminDashboard() {
     }
   }
 
-  // --- NEW: AI GENERATOR ---
+  // --- AI GENERATOR ---
   async function handleAIGenerate() {
     if (!aiText) return alert("Please paste some text first!");
     setIsAiLoading(true);
@@ -102,21 +122,16 @@ export default function AdminDashboard() {
       const result = await response.json();
 
       if (response.ok) {
-        // Open a blank new edit form and stuff the AI data into it!
         setEditingId("ai_new_event");
         setIsDuplicateMode(true);
-        setEditFormData({
-          ...result.data,
-          is_approved: true
-        });
-        setAiText(""); // Clear the input box
+        setEditFormData({ ...result.data, is_approved: true });
+        setAiText(""); 
       } else {
         alert("AI Error: " + result.error);
       }
     } catch (error: any) {
       alert("Failed to reach AI: " + error.message);
     }
-    
     setIsAiLoading(false);
   }
 
@@ -125,7 +140,7 @@ export default function AdminDashboard() {
       <h1 className="text-3xl font-bold text-neon-cyan mb-2">Admin Dashboard</h1>
       <p className="text-foreground/70 mb-8">Manage submissions, live events, and sponsorships.</p>
 
-      {/* --- NEW: AI IMPORT BOX --- */}
+      {/* AI IMPORT BOX */}
       <div className="bg-desert-orange/10 border border-desert-orange/30 p-6 rounded-2xl mb-8 shadow-lg">
         <h2 className="text-lg font-bold text-desert-orange mb-2 flex items-center gap-2">
           <span>✨</span> Magic AI Importer
@@ -148,16 +163,10 @@ export default function AdminDashboard() {
       </div>
 
       <div className="flex gap-4 mb-8 border-b border-surface-border pb-4">
-        <button 
-          onClick={() => setActiveTab("pending")}
-          className={`font-bold pb-2 px-2 transition-colors ${activeTab === "pending" ? "text-desert-orange border-b-2 border-desert-orange" : "text-foreground/50 hover:text-foreground"}`}
-        >
+        <button onClick={() => setActiveTab("pending")} className={`font-bold pb-2 px-2 transition-colors ${activeTab === "pending" ? "text-desert-orange border-b-2 border-desert-orange" : "text-foreground/50 hover:text-foreground"}`}>
           Pending ({pendingEvents.length})
         </button>
-        <button 
-          onClick={() => setActiveTab("live")}
-          className={`font-bold pb-2 px-2 transition-colors ${activeTab === "live" ? "text-neon-cyan border-b-2 border-neon-cyan" : "text-foreground/50 hover:text-foreground"}`}
-        >
+        <button onClick={() => setActiveTab("live")} className={`font-bold pb-2 px-2 transition-colors ${activeTab === "live" ? "text-neon-cyan border-b-2 border-neon-cyan" : "text-foreground/50 hover:text-foreground"}`}>
           Live Events ({liveEvents.length})
         </button>
       </div>
@@ -244,10 +253,19 @@ export default function AdminDashboard() {
                     <label className="text-xs text-foreground/50 font-bold uppercase">Ticket/Info Link</label>
                     <input name="ticket_link" type="url" value={editFormData.ticket_link || ""} onChange={handleFormChange} className="w-full bg-surface border border-surface-border rounded px-3 py-2 text-sm focus:border-desert-orange outline-none" />
                   </div>
+                  
+                  {/* --- NEW UPLOAD BUTTON FOR AI CARD --- */}
                   <div>
-                    <label className="text-xs text-foreground/50 font-bold uppercase">Image URL (Optional)</label>
-                    <input name="image_url" type="text" placeholder="Upload via Supabase and paste link, or leave blank" value={editFormData.image_url || ""} onChange={handleFormChange} className="w-full bg-surface border border-surface-border rounded px-3 py-2 text-xs text-foreground/50 focus:border-desert-orange outline-none" />
+                    <label className="text-xs text-foreground/50 font-bold uppercase">Flyer Image</label>
+                    <div className="flex gap-2 mt-1">
+                      <input name="image_url" type="text" placeholder="Image URL..." value={editFormData.image_url || ""} onChange={handleFormChange} className="flex-1 bg-surface border border-surface-border rounded px-3 py-2 text-xs text-foreground/50 focus:border-desert-orange outline-none" />
+                      <label className="bg-desert-orange hover:bg-desert-pink text-white text-xs font-bold py-2 px-4 rounded cursor-pointer transition-colors flex items-center shrink-0">
+                        {isUploading ? "..." : "Upload"}
+                        <input type="file" accept="image/*" className="hidden" onChange={handleAdminImageUpload} disabled={isUploading} />
+                      </label>
+                    </div>
                   </div>
+
                 </div>
 
                 <div>
@@ -267,6 +285,7 @@ export default function AdminDashboard() {
             </div>
           )}
 
+          {/* NORMAL CARDS */}
           {displayedEvents.map((event) => {
             const isEditing = editingId === event.id;
 
@@ -345,10 +364,19 @@ export default function AdminDashboard() {
                           <label className="text-xs text-foreground/50 font-bold uppercase">Ticket/Info Link</label>
                           <input name="ticket_link" type="url" value={editFormData.ticket_link || ""} onChange={handleFormChange} className="w-full bg-surface border border-surface-border rounded px-3 py-2 text-sm focus:border-desert-orange outline-none" />
                         </div>
+                        
+                        {/* --- NEW UPLOAD BUTTON FOR NORMAL EDIT CARD --- */}
                         <div>
-                          <label className="text-xs text-foreground/50 font-bold uppercase">Image URL</label>
-                          <input name="image_url" type="text" value={editFormData.image_url || ""} onChange={handleFormChange} className="w-full bg-surface border border-surface-border rounded px-3 py-2 text-xs text-foreground/50 focus:border-desert-orange outline-none" />
+                          <label className="text-xs text-foreground/50 font-bold uppercase">Flyer Image</label>
+                          <div className="flex gap-2 mt-1">
+                            <input name="image_url" type="text" placeholder="Image URL..." value={editFormData.image_url || ""} onChange={handleFormChange} className="flex-1 bg-surface border border-surface-border rounded px-3 py-2 text-xs text-foreground/50 focus:border-desert-orange outline-none" />
+                            <label className="bg-desert-orange hover:bg-desert-pink text-white text-xs font-bold py-2 px-4 rounded cursor-pointer transition-colors flex items-center shrink-0">
+                              {isUploading ? "..." : "Upload"}
+                              <input type="file" accept="image/*" className="hidden" onChange={handleAdminImageUpload} disabled={isUploading} />
+                            </label>
+                          </div>
                         </div>
+
                       </div>
                       <div>
                         <label className="text-xs text-foreground/50 font-bold uppercase">Description</label>
