@@ -53,10 +53,10 @@ export default function NewsletterPopup() {
       <div className="relative bg-surface border-2 border-desert-orange/50 shadow-[0_0_40px_rgba(255,107,53,0.3)] rounded-2xl p-8 max-w-md w-full text-center animate-in fade-in zoom-in duration-300">
         
         <h2 className="text-3xl font-extrabold text-sunset mb-2">
-          Don't Miss Out.
+          Be the first to know.
         </h2>
         <p className="text-foreground/80 mb-6">
-          Get the ultimate Tri-State weekend guide sent straight to your inbox every Thursday morning.
+          We're building the ultimate Tri-State weekend guide. Drop your email below to get early access when our weekly newsletter launches!
         </p>
 
         {status === "success" ? (
