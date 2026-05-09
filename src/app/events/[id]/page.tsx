@@ -140,7 +140,6 @@ export default async function EventDetails({
               </a>
             )}
           </div>
-          </div>
 
         </div>
       </div>
