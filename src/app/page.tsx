@@ -98,11 +98,10 @@ export default async function Home({
         </div>
 
         <EventFeed events={events || []} />
-      </section>
-      <EventFeed events={events || []} />
+
       </section>
 
-      {/* THE SMART GATE */}
+      {/* --- SMART GATE --- */}
       <NewsletterPopup />
 
     </main>
