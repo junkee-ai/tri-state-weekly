@@ -45,6 +45,7 @@ export default function SubmitEvent() {
       venue_name: formData.get("venue_name"),
       address: formData.get("address"),
       zip_code: formData.get("zip_code"),
+      ticket_link: formData.get("ticket_link") || null,
       image_url: imageUrl,
     };
 
@@ -172,6 +173,11 @@ export default function SubmitEvent() {
             <label className="block text-base font-medium mb-2">Zip Code *</label>
             <input required name="zip_code" type="text" placeholder="e.g. 86426" className="w-full bg-background border border-surface-border rounded-lg px-4 py-3 focus:outline-none focus:border-desert-orange" />
           </div>
+        </div>
+
+        <div>
+          <label className="block text-base font-medium mb-2">Ticket / Info Link <span className="text-foreground/50 text-sm font-normal ml-2">(Optional)</span></label>
+          <input name="ticket_link" type="url" placeholder="https://..." className="w-full bg-background border border-surface-border rounded-lg px-4 py-3 focus:outline-none focus:border-desert-orange" />
         </div>
 
         <div>

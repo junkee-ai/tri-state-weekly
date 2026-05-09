@@ -121,12 +121,25 @@ export default async function EventDetails({
 
           </div>
 
-          {/* Description (MOVED DOWN) */}
+          {/* Description */}
           <div className="pt-4 border-t border-surface-border">
             <h3 className="text-lg font-bold text-foreground mb-4">About this event</h3>
-            <div className="text-foreground/80 leading-relaxed whitespace-pre-wrap text-lg">
+            <div className="text-foreground/80 leading-relaxed whitespace-pre-wrap text-lg mb-6">
               {event.description}
             </div>
+            
+            {/* --- NEW: TICKET BUTTON --- */}
+            {event.ticket_link && (
+              <a 
+                href={event.ticket_link} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-block bg-desert-orange hover:bg-desert-pink text-white font-bold text-lg px-8 py-4 rounded-xl transition-colors shadow-lg"
+              >
+                Get Tickets / More Info
+              </a>
+            )}
+          </div>
           </div>
 
         </div>

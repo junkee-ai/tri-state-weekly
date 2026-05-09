@@ -138,10 +138,41 @@ export default function AdminDashboard() {
                 <div className="flex-1 space-y-4">
                   {isEditing ? (
                     <div className="space-y-4 bg-background/50 p-4 rounded-lg border border-surface-border">
+                      
+                      {/* Title */}
                       <div>
                         <label className="text-xs text-foreground/50 font-bold uppercase">Title</label>
                         <input name="title" value={editFormData.title || ""} onChange={handleFormChange} className="w-full bg-surface border border-surface-border rounded px-3 py-2 text-sm focus:border-desert-orange outline-none" />
                       </div>
+
+                      {/* Category & City */}
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <label className="text-xs text-foreground/50 font-bold uppercase">Category</label>
+                          <select name="category" value={editFormData.category || ""} onChange={handleFormChange} className="w-full bg-surface border border-surface-border rounded px-3 py-2 text-sm focus:border-desert-orange outline-none">
+                            <option value="Live Music">Live Music</option>
+                            <option value="Nightlife">Nightlife</option>
+                            <option value="Food & Drink">Food & Drink</option>
+                            <option value="Comedy">Comedy</option>
+                            <option value="Community">Community</option>
+                            <option value="Family">Family</option>
+                            <option value="Outdoor & River">Outdoor & River</option>
+                            <option value="Pets & Animals">Pets & Animals</option>
+                            <option value="Classes & Workshops">Classes & Workshops</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="text-xs text-foreground/50 font-bold uppercase">City</label>
+                          <select name="city" value={editFormData.city || ""} onChange={handleFormChange} className="w-full bg-surface border border-surface-border rounded px-3 py-2 text-sm focus:border-desert-orange outline-none">
+                            <option value="Fort Mohave">Fort Mohave</option>
+                            <option value="Bullhead City">Bullhead City</option>
+                            <option value="Laughlin">Laughlin</option>
+                            <option value="Needles">Needles</option>
+                          </select>
+                        </div>
+                      </div>
+                      
+                      {/* Date & Times */}
                       <div className="grid grid-cols-3 gap-2">
                         <div>
                           <label className="text-xs text-foreground/50 font-bold uppercase">Date</label>
@@ -156,7 +187,9 @@ export default function AdminDashboard() {
                           <input type="time" name="end_time" value={editFormData.end_time || ""} onChange={handleFormChange} className="w-full bg-surface border border-surface-border rounded px-3 py-2 text-sm focus:border-desert-orange outline-none" />
                         </div>
                       </div>
-                      <div className="grid grid-cols-2 gap-2">
+
+                      {/* Location Details */}
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                          <div>
                           <label className="text-xs text-foreground/50 font-bold uppercase">Venue Name</label>
                           <input name="venue_name" value={editFormData.venue_name || ""} onChange={handleFormChange} className="w-full bg-surface border border-surface-border rounded px-3 py-2 text-sm focus:border-desert-orange outline-none" />
@@ -165,11 +198,36 @@ export default function AdminDashboard() {
                           <label className="text-xs text-foreground/50 font-bold uppercase">Address</label>
                           <input name="address" value={editFormData.address || ""} onChange={handleFormChange} className="w-full bg-surface border border-surface-border rounded px-3 py-2 text-sm focus:border-desert-orange outline-none" />
                         </div>
+                        <div>
+                          <label className="text-xs text-foreground/50 font-bold uppercase">Zip Code</label>
+                          <input name="zip_code" value={editFormData.zip_code || ""} onChange={handleFormChange} className="w-full bg-surface border border-surface-border rounded px-3 py-2 text-sm focus:border-desert-orange outline-none" />
+                        </div>
                       </div>
+
+                      {/* Ticket Link & Submitter Info */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                        <div>
+                          <label className="text-xs text-foreground/50 font-bold uppercase">Ticket/Info Link</label>
+                          <input name="ticket_link" type="url" value={editFormData.ticket_link || ""} onChange={handleFormChange} className="w-full bg-surface border border-surface-border rounded px-3 py-2 text-sm focus:border-desert-orange outline-none" />
+                        </div>
+                        <div>
+                          <label className="text-xs text-foreground/50 font-bold uppercase">Submitter Contact</label>
+                          <input name="submitter_info" type="text" value={editFormData.submitter_info || ""} onChange={handleFormChange} className="w-full bg-surface border border-surface-border rounded px-3 py-2 text-sm focus:border-desert-orange outline-none" />
+                        </div>
+                      </div>
+
+                      {/* Description */}
                       <div>
                         <label className="text-xs text-foreground/50 font-bold uppercase">Description</label>
                         <textarea name="description" rows={3} value={editFormData.description || ""} onChange={handleFormChange} className="w-full bg-surface border border-surface-border rounded px-3 py-2 text-sm focus:border-desert-orange outline-none"></textarea>
                       </div>
+
+                      {/* Image URL (Handy for deleting bad pictures) */}
+                      <div>
+                        <label className="text-xs text-foreground/50 font-bold uppercase">Image URL (Clear this to remove flyer)</label>
+                        <input name="image_url" type="text" value={editFormData.image_url || ""} onChange={handleFormChange} className="w-full bg-surface border border-surface-border rounded px-3 py-2 text-xs text-foreground/50 focus:border-desert-orange outline-none" />
+                      </div>
+                      
                     </div>
                   ) : (
                     <>
@@ -184,6 +242,7 @@ export default function AdminDashboard() {
                       <div className="text-xs text-foreground/50 pt-2 border-t border-surface-border mt-2">
                         <p><strong>Venue:</strong> {event.venue_name} ({event.address}, {event.zip_code})</p>
                         <p><strong>Date/Time:</strong> {event.date} | {event.start_time.slice(0,5)} {event.end_time ? `- ${event.end_time.slice(0,5)}` : ""}</p>
+                        {event.ticket_link && <p><strong>Link:</strong> <a href={event.ticket_link} target="_blank" className="text-desert-orange hover:underline">{event.ticket_link}</a></p>}
                         <p><strong>Submitter:</strong> {event.submitter_info || 'None provided'}</p>
                       </div>
                     </>
