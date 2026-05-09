@@ -256,11 +256,11 @@ export default function AdminDashboard() {
                 </div>
 
                 <div className="flex gap-4 pt-4">
-                  <button onClick={() => handleSave(event.id)} className="flex-1 bg-desert-orange hover:bg-desert-pink text-white font-bold py-3 px-4 rounded-lg transition-colors">
-                  Save as New Event
-                  </button>
                   <button onClick={() => handleSave("new")} className="flex-1 bg-desert-orange hover:bg-desert-pink text-white font-bold py-3 px-4 rounded-lg transition-colors">
                     Save as New Event
+                  </button>
+                  <button onClick={() => {setEditingId(null); setIsDuplicateMode(false);}} className="flex-1 bg-surface-border hover:bg-surface-border/80 text-white font-bold py-3 px-4 rounded-lg transition-colors">
+                    Discard
                   </button>
                 </div>
               </div>
