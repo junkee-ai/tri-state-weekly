@@ -56,7 +56,7 @@ export default async function Home({
 
   if (error) console.error("Supabase Error:", error.message);
 
-  const cities = ["All", "Fort Mohave", "Bullhead City", "Laughlin", "Needles"];
+  const cities = ["All", "Fort Mohave", "Bullhead City", "Laughlin", "Needles", "Mohave Valley"];
 
   return (
     <main className="min-h-screen p-6 md:p-12 max-w-7xl mx-auto">

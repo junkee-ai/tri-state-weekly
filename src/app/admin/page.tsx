@@ -219,6 +219,7 @@ export default function AdminDashboard() {
                       <option value="Bullhead City">Bullhead City</option>
                       <option value="Laughlin">Laughlin</option>
                       <option value="Needles">Needles</option>
+                      <option value="Mohave Valley">Mohave Valley</option>
                     </select>
                   </div>
                 </div>
@@ -256,10 +257,10 @@ export default function AdminDashboard() {
 
                 <div className="flex gap-4 pt-4">
                   <button onClick={() => handleSave(event.id)} className="flex-1 bg-desert-orange hover:bg-desert-pink text-white font-bold py-3 px-4 rounded-lg transition-colors">
-                    Save as New Event
+                  Save as New Event
                   </button>
-                  <button onClick={() => {setEditingId(null); setIsDuplicateMode(false);}} className="flex-1 bg-surface-border hover:bg-surface-border/80 text-white font-bold py-3 px-4 rounded-lg transition-colors">
-                    Discard
+                  <button onClick={() => handleSave("new")} className="flex-1 bg-desert-orange hover:bg-desert-pink text-white font-bold py-3 px-4 rounded-lg transition-colors">
+                    Save as New Event
                   </button>
                 </div>
               </div>
@@ -321,6 +322,7 @@ export default function AdminDashboard() {
                             <option value="Bullhead City">Bullhead City</option>
                             <option value="Laughlin">Laughlin</option>
                             <option value="Needles">Needles</option>
+                            <option value="Mohave Valley">Mohave Valley</option>
                           </select>
                         </div>
                       </div>

@@ -141,6 +141,7 @@ export default function SubmitEvent() {
               <option value="Bullhead City">Bullhead City</option>
               <option value="Laughlin">Laughlin</option>
               <option value="Needles">Needles</option>
+              <option value="Mohave Valley">Mohave Valley</option> {/* <-- ADDED THIS */}
             </select>
           </div>
           <div>

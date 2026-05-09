@@ -27,7 +27,7 @@ export async function POST(req: Request) {
       - end_time (String: HH:MM format in 24-hour time, or "" if none)
       - venue_name (String: Name of the location/bar/park/casino)
       - address (String: Street address, or "" if you only know the venue name)
-      - city (String: MUST be one of: "Fort Mohave", "Bullhead City", "Laughlin", "Needles". Guess based on context if not explicit)
+      - city (String: MUST be one of: "Fort Mohave", "Bullhead City", "Laughlin", "Needles", "Mohave Valley". Guess based on context if not explicit)
       - category (String: MUST be one of: "Live Music", "Nightlife", "Food & Drink", "Comedy", "Community", "Family", "Outdoor & River", "Pets & Animals", "Classes & Workshops". Guess the best fit.)
       - description (String: A clean, well-formatted 1-2 paragraph description based on the post. Remove emojis and hashtags.)
       - ticket_link (String: Any URL found in the text for tickets or more info)
