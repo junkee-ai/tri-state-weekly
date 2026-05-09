@@ -14,11 +14,18 @@ export default function AdminDashboard() {
 
   const [aiText, setAiText] = useState("");
   const [isAiLoading, setIsAiLoading] = useState(false);
+  const [subscriberCount, setSubscriberCount] = useState<number>(0);
   const [isUploading, setIsUploading] = useState(false); // NEW: Tracks image upload status
 
   async function fetchEvents() {
     const { data, error } = await supabase.from("events").select("*").order("created_at", { ascending: false });
     if (!error && data) setAllEvents(data);
+    const { count, error: countError } = await supabase
+      .from("subscribers")
+      .select("*", { count: 'exact', head: true });
+      
+    if (!countError && count !== null) setSubscriberCount(count);
+
     setLoading(false);
   }
 
@@ -152,8 +159,21 @@ export default function AdminDashboard() {
 
   return (
     <main className="min-h-screen p-6 md:p-12 max-w-5xl mx-auto">
-      <h1 className="text-3xl font-bold text-neon-cyan mb-2">Admin Dashboard</h1>
-      <p className="text-foreground/70 mb-8">Manage submissions, live events, and sponsorships.</p>
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-neon-cyan mb-2">Admin Dashboard</h1>
+          <p className="text-foreground/70">Manage submissions, live events, and sponsorships.</p>
+        </div>
+        
+        {/* --- NEW: SUBSCRIBER BADGE --- */}
+        <div className="bg-surface border border-surface-border px-6 py-3 rounded-xl shadow-lg flex items-center gap-3">
+          <span className="text-2xl">📬</span>
+          <div>
+            <p className="text-xs text-foreground/50 font-bold uppercase tracking-wider">Total Subscribers</p>
+            <p className="text-2xl font-black text-foreground">{subscriberCount}</p>
+          </div>
+        </div>
+      </div>
 
       {/* AI IMPORT BOX */}
       <div className="bg-desert-orange/10 border border-desert-orange/30 p-6 rounded-2xl mb-8 shadow-lg">
