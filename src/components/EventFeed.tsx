@@ -114,15 +114,15 @@ export default function EventFeed({ events }: { events: any[] }) {
                 </p>
               </div>
 
-              {/* 3. THE BUTTONS: Z-20 ensures they sit safely ABOVE the invisible link! */}
-              <div className="relative z-20 flex gap-2 mt-4 pt-4 border-t border-surface-border/30">
+              {/* 3. THE BUTTONS */}
+              <div className="relative z-20 flex gap-2 sm:gap-3 mt-4 pt-4 border-t border-surface-border/50">
                 
                 {event.ticket_link && (
                   <a 
                     href={event.ticket_link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex-1 bg-surface-border hover:bg-desert-orange text-foreground hover:text-white text-xs sm:text-sm font-bold py-2 rounded-lg transition-colors text-center"
+                    className="flex-1 bg-surface-border/40 hover:bg-desert-orange text-foreground hover:text-white text-xs sm:text-sm font-extrabold py-2.5 rounded-lg border border-surface-border hover:border-desert-orange transition-all hover:-translate-y-0.5 shadow-sm hover:shadow-md text-center flex items-center justify-center"
                   >
                     Website
                   </a>
@@ -140,7 +140,7 @@ export default function EventFeed({ events }: { events: any[] }) {
                       target="_blank"
                       rel="noopener noreferrer"
                       title="Add to Calendar"
-                      className="w-10 sm:w-12 shrink-0 bg-transparent border border-surface-border hover:border-neon-cyan text-foreground hover:text-neon-cyan text-lg sm:text-xl font-bold flex items-center justify-center rounded-lg transition-colors"
+                      className="w-10 sm:w-12 shrink-0 bg-surface-border/40 hover:bg-neon-cyan border border-surface-border hover:border-neon-cyan text-foreground hover:text-black text-lg sm:text-xl font-bold flex items-center justify-center rounded-lg transition-all hover:-translate-y-0.5 shadow-sm hover:shadow-md"
                     >
                       +
                     </a>
@@ -149,7 +149,7 @@ export default function EventFeed({ events }: { events: any[] }) {
 
                 <Link 
                   href={`/events/${event.id}`}
-                  className="flex-1 bg-surface border border-surface-border hover:border-desert-pink text-foreground text-xs sm:text-sm font-bold py-2 rounded-lg transition-colors text-center flex items-center justify-center"
+                  className="flex-1 bg-surface-border/40 hover:bg-desert-pink border border-surface-border hover:border-desert-pink text-foreground hover:text-white text-xs sm:text-sm font-extrabold py-2.5 rounded-lg transition-all hover:-translate-y-0.5 shadow-sm hover:shadow-md text-center flex items-center justify-center"
                 >
                   Details
                 </Link>
