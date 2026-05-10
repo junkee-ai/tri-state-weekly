@@ -12,25 +12,15 @@ export default function EventFeed({ events }: { events: any[] }) {
     return new Date(date.getTime() + date.getTimezoneOffset() * 60000).toLocaleDateString("en-US", { day: "numeric" });
   };
 
-  // --- THE DE-CLUTTER MAGIC ---
-  // Group events by title and venue name to find duplicates
   const groupedEvents: any[] = [];
   const seenKeys = new Set();
 
   events.forEach((event) => {
-    // We create a unique key combining title and venue
     const uniqueKey = `${event.title}-${event.venue_name}`.toLowerCase();
-    
     if (!seenKeys.has(uniqueKey)) {
-      // This is the FIRST time we are seeing this event. Let's find out if it repeats.
       const duplicates = events.filter(e => `${e.title}-${e.venue_name}`.toLowerCase() === uniqueKey);
-      
-      groupedEvents.push({
-        ...event,
-        is_recurring: duplicates.length > 1, // Flag it if there are future versions!
-      });
-      
-      seenKeys.add(uniqueKey); // Mark it so we ignore the future duplicates in the feed
+      groupedEvents.push({ ...event, is_recurring: duplicates.length > 1 });
+      seenKeys.add(uniqueKey); 
     }
   });
 
@@ -50,20 +40,21 @@ export default function EventFeed({ events }: { events: any[] }) {
 
   return (
     <div className="w-full mt-4">
-      {/* 1 col on phone, 2 on tablet, 3 on small laptops, 4 on big desktop monitors! */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 xl:gap-6">
         {groupedEvents.map((event) => (
-          <Link
+          
+          // 1. CHANGED FROM <Link> to <div>
+          <div
             key={event.id}
-            href={`/events/${event.id}`}
-            // Mobile: Horizontal List (flex-row) | Desktop: Vertical Card (flex-col)
-            className="bg-surface border border-surface-border rounded-2xl shadow-xl hover:border-desert-orange/50 transition-colors group cursor-pointer overflow-hidden flex flex-row sm:flex-col items-center sm:items-stretch relative"
+            className="bg-surface border border-surface-border rounded-2xl shadow-xl hover:border-desert-orange/50 transition-colors group overflow-hidden flex flex-row sm:flex-col items-center sm:items-stretch relative"
           >
             
-            {/* IMAGE SECTION */}
-            {/* Mobile: Square on left | Desktop: Full width on top */}
+            {/* 2. THE INVISIBLE LINK: Covers the whole card so it's clickable, but sits underneath the buttons! */}
+            <Link href={`/events/${event.id}`} className="absolute inset-0 z-10">
+              <span className="sr-only">View Details</span>
+            </Link>
+
             <div className="relative bg-surface overflow-hidden w-32 shrink-0 sm:w-full sm:aspect-[3/4] h-full sm:h-auto border-r sm:border-r-0 sm:border-b border-surface-border/50">
-              
               <div className="absolute top-2 left-2 sm:top-4 sm:left-4 z-20 bg-surface/95 backdrop-blur-md border border-surface-border rounded-xl flex flex-col items-center justify-center w-10 h-10 sm:w-14 sm:h-14 shadow-xl">
                 <span className="text-[8px] sm:text-[10px] font-extrabold uppercase text-desert-orange leading-none mb-1">{getMonth(event.date)}</span>
                 <span className="text-base sm:text-xl font-black text-foreground leading-none">{getDay(event.date)}</span>
@@ -78,7 +69,7 @@ export default function EventFeed({ events }: { events: any[] }) {
               {event.image_url ? (
                 <>
                   <div className="absolute inset-0 opacity-40 blur-2xl scale-110 group-hover:scale-125 transition-transform duration-700" style={{ backgroundImage: `url(${event.image_url})`, backgroundPosition: 'center', backgroundSize: 'cover' }}></div>
-                  <img src={event.image_url} alt={event.title} className="relative z-10 w-full h-full object-contain group-hover:scale-105 transition-transform duration-500 drop-shadow-2xl" />
+                  <img src={event.image_url} alt={event.title} className="relative z-10 w-full h-full object-contain group-hover:scale-105 transition-transform duration-500 drop-shadow-2xl pointer-events-none" />
                 </>
               ) : (
                 <div className="absolute inset-0 bg-gradient-to-br from-surface-border to-background flex items-center justify-center">
@@ -87,8 +78,6 @@ export default function EventFeed({ events }: { events: any[] }) {
               )}
             </div>
 
-            {/* TEXT SECTION */}
-            {/* Mobile: Less padding | Desktop: Normal padding */}
             <div className="p-4 sm:p-5 flex flex-col flex-1 w-full justify-center">
               
               <div className="flex justify-start items-center mb-2 gap-2">
@@ -107,13 +96,10 @@ export default function EventFeed({ events }: { events: any[] }) {
                 {event.title}
               </h3>
               
-              {/* Hide description entirely on mobile list to save space, show 2 lines on desktop card */}
               <p className="hidden sm:block text-sm sm:text-base text-foreground/80 mb-4 line-clamp-2">
                 {event.description}
               </p>
 
-              {/* Location & Time Box */}
-              {/* Pushed to the bottom of the card on desktop */}
               <div className="text-xs sm:text-sm opacity-90 space-y-1 sm:space-y-2 bg-background/50 p-2 sm:p-4 rounded-lg border border-surface-border/50 mt-auto">
                 <div>
                   <p className="flex items-center gap-1 sm:gap-2 font-bold text-foreground mb-1">
@@ -127,23 +113,21 @@ export default function EventFeed({ events }: { events: any[] }) {
                   ⏰ <span className="font-medium text-xs sm:text-sm">{event.start_time.slice(0, 5)} {event.end_time ? `- ${event.end_time.slice(0, 5)}` : ""}</span>
                 </p>
               </div>
-              {/* --- QUICK ACTION BUTTONS --- */}
-              <div className="flex gap-2 mt-4 pt-4 border-t border-surface-border/30">
+
+              {/* 3. THE BUTTONS: Z-20 ensures they sit safely ABOVE the invisible link! */}
+              <div className="relative z-20 flex gap-2 mt-4 pt-4 border-t border-surface-border/30">
                 
-                {/* Website / Ticket Button (Only shows if they provided a link) */}
                 {event.ticket_link && (
                   <a 
                     href={event.ticket_link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    onClick={(e) => e.stopPropagation()} // Prevents the main card link from clicking!
                     className="flex-1 bg-surface-border hover:bg-desert-orange text-foreground hover:text-white text-xs sm:text-sm font-bold py-2 rounded-lg transition-colors text-center"
                   >
                     Website
                   </a>
                 )}
 
-                {/* Add to Calendar Button (Small + Icon) */}
                 {(() => {
                   const dateClean = event.date.replace(/-/g, '');
                   const startTime = event.start_time.replace(/:/g, '') + '00';
@@ -155,7 +139,6 @@ export default function EventFeed({ events }: { events: any[] }) {
                       href={calUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      onClick={(e) => e.stopPropagation()} 
                       title="Add to Calendar"
                       className="w-10 sm:w-12 shrink-0 bg-transparent border border-surface-border hover:border-neon-cyan text-foreground hover:text-neon-cyan text-lg sm:text-xl font-bold flex items-center justify-center rounded-lg transition-colors"
                     >
@@ -164,16 +147,18 @@ export default function EventFeed({ events }: { events: any[] }) {
                   );
                 })()}
 
-                {/* Event Details Button (Just a visual cue, clicking it does the same as clicking the card) */}
-                <div className="flex-1 bg-surface border border-surface-border hover:border-desert-pink text-foreground text-xs sm:text-sm font-bold py-2 rounded-lg transition-colors text-center flex items-center justify-center">
+                <Link 
+                  href={`/events/${event.id}`}
+                  className="flex-1 bg-surface border border-surface-border hover:border-desert-pink text-foreground text-xs sm:text-sm font-bold py-2 rounded-lg transition-colors text-center flex items-center justify-center"
+                >
                   Details
-                </div>
+                </Link>
 
               </div>
 
             </div>
 
-          </Link>
+          </div>
         ))}
       </div>
     </div>
