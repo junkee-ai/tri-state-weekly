@@ -127,6 +127,49 @@ export default function EventFeed({ events }: { events: any[] }) {
                   ⏰ <span className="font-medium text-xs sm:text-sm">{event.start_time.slice(0, 5)} {event.end_time ? `- ${event.end_time.slice(0, 5)}` : ""}</span>
                 </p>
               </div>
+              {/* --- QUICK ACTION BUTTONS --- */}
+              <div className="flex gap-2 mt-4 pt-4 border-t border-surface-border/30">
+                
+                {/* Website / Ticket Button (Only shows if they provided a link) */}
+                {event.ticket_link && (
+                  <a 
+                    href={event.ticket_link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()} // Prevents the main card link from clicking!
+                    className="flex-1 bg-surface-border hover:bg-desert-orange text-foreground hover:text-white text-xs sm:text-sm font-bold py-2 rounded-lg transition-colors text-center"
+                  >
+                    Website
+                  </a>
+                )}
+
+                {/* Add to Calendar Button (Small + Icon) */}
+                {(() => {
+                  const dateClean = event.date.replace(/-/g, '');
+                  const startTime = event.start_time.replace(/:/g, '') + '00';
+                  const endTime = event.end_time ? event.end_time.replace(/:/g, '') + '00' : startTime;
+                  const calUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(event.title)}&dates=${dateClean}T${startTime}/${dateClean}T${endTime}&details=${encodeURIComponent(event.description)}&location=${encodeURIComponent(`${event.venue_name}, ${event.address}, ${event.city} ${event.zip_code}`)}`;
+                  
+                  return (
+                    <a 
+                      href={calUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()} 
+                      title="Add to Calendar"
+                      className="w-10 sm:w-12 shrink-0 bg-transparent border border-surface-border hover:border-neon-cyan text-foreground hover:text-neon-cyan text-lg sm:text-xl font-bold flex items-center justify-center rounded-lg transition-colors"
+                    >
+                      +
+                    </a>
+                  );
+                })()}
+
+                {/* Event Details Button (Just a visual cue, clicking it does the same as clicking the card) */}
+                <div className="flex-1 bg-surface border border-surface-border hover:border-desert-pink text-foreground text-xs sm:text-sm font-bold py-2 rounded-lg transition-colors text-center flex items-center justify-center">
+                  Details
+                </div>
+
+              </div>
 
             </div>
 
