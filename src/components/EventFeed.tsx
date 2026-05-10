@@ -12,6 +12,15 @@ export default function EventFeed({ events }: { events: any[] }) {
     return new Date(date.getTime() + date.getTimezoneOffset() * 60000).toLocaleDateString("en-US", { day: "numeric" });
   };
 
+  const formatTime = (time24: string) => {
+    if (!time24) return "";
+    const [hourStr, minuteStr] = time24.split(":");
+    let hour = parseInt(hourStr, 10);
+    const ampm = hour >= 12 ? "PM" : "AM";
+    hour = hour % 12 || 12; // Converts 0 (midnight) to 12
+    return `${hour}:${minuteStr} ${ampm} PT`;
+  };
+
   const groupedEvents: any[] = [];
   const seenKeys = new Set();
 
@@ -110,7 +119,7 @@ export default function EventFeed({ events }: { events: any[] }) {
                   </p>
                 </div>
                 <p className="flex items-center gap-2 pt-2 border-t border-surface-border/50">
-                  ⏰ <span className="font-medium text-sm">{event.start_time.slice(0, 5)} {event.end_time ? `- ${event.end_time.slice(0, 5)}` : ""}</span>
+                  ⏰ <span className="font-medium text-sm"> {formatTime(event.start_time)} {event.end_time ? `- ${formatTime(event.end_time)}` : ""} </span>
                 </p>
               </div>
 

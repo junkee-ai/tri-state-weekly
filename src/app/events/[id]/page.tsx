@@ -30,6 +30,15 @@ export default async function EventDetails({
     return localDate.toLocaleDateString("en-US", { weekday: 'long', month: "long", day: "numeric" });
   };
 
+  const formatTime = (time24: string) => {
+    if (!time24) return "";
+    const [hourStr, minuteStr] = time24.split(":");
+    let hour = parseInt(hourStr, 10);
+    const ampm = hour >= 12 ? "PM" : "AM";
+    hour = hour % 12 || 12;
+    return `${hour}:${minuteStr} ${ampm} PT`;
+  };
+
   const mapSearchQuery = encodeURIComponent(`${event.venue_name} ${event.address} ${event.city} ${event.zip_code}`);
   const googleMapsLink = `https://www.google.com/maps/search/?api=1&query=${mapSearchQuery}`;
 
@@ -91,8 +100,8 @@ export default async function EventDetails({
               <div className="pt-1">
                 <h3 className="font-bold text-foreground text-lg mb-1">Time</h3>
                 <p className="text-foreground/70">
-                  {event.start_time.slice(0, 5)} 
-                  {event.end_time ? ` - ${event.end_time.slice(0, 5)}` : ""}
+                    {formatTime(event.start_time)} 
+                    {event.end_time ? ` - ${formatTime(event.end_time)}` : ""}
                 </p>
               </div>
             </div>
