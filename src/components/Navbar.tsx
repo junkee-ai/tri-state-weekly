@@ -62,7 +62,7 @@ export default function Navbar() {
                     </Link>
                     
                     {/* ONLY SHOW ADMIN LINK IF THEY ARE THE BOSS! */}
-                    {user?.email === "YOUR_EMAIL@gmail.com" && (
+                    {user?.email === "gpmiranda@gmail.com" && (
                       <Link href="/admin" className="px-4 py-2 text-sm font-medium text-foreground/80 hover:text-desert-orange hover:bg-desert-orange/10 rounded-lg transition-colors text-left">
                         Admin Dashboard
                       </Link>
