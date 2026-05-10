@@ -50,23 +50,27 @@ export default function EventFeed({ events }: { events: any[] }) {
 
   return (
     <div className="w-full mt-4">
-      <div className="flex flex-col gap-5">
+      {/* 1 col on phone, 2 on tablet, 3 on small laptops, 4 on big desktop monitors! */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 xl:gap-6">
         {groupedEvents.map((event) => (
           <Link
             key={event.id}
             href={`/events/${event.id}`}
-            className="bg-surface border border-surface-border rounded-2xl shadow-xl hover:border-desert-orange/50 transition-colors group cursor-pointer overflow-hidden flex flex-col md:flex-row items-center md:items-stretch relative"
+            // Mobile: Horizontal List (flex-row) | Desktop: Vertical Card (flex-col)
+            className="bg-surface border border-surface-border rounded-2xl shadow-xl hover:border-desert-orange/50 transition-colors group cursor-pointer overflow-hidden flex flex-row sm:flex-col items-center sm:items-stretch relative"
           >
             
-            <div className="relative bg-surface overflow-hidden w-full md:w-56 md:shrink-0 h-56 md:h-auto">
+            {/* IMAGE SECTION */}
+            {/* Mobile: Square on left | Desktop: Full width on top */}
+            <div className="relative bg-surface overflow-hidden w-32 shrink-0 sm:w-full sm:aspect-[3/4] h-full sm:h-auto border-r sm:border-r-0 sm:border-b border-surface-border/50">
               
-              <div className="absolute top-4 left-4 z-20 bg-surface/95 backdrop-blur-md border border-surface-border rounded-xl flex flex-col items-center justify-center w-14 h-14 shadow-xl">
-                <span className="text-[10px] font-extrabold uppercase text-desert-orange leading-none mb-1">{getMonth(event.date)}</span>
-                <span className="text-xl font-black text-foreground leading-none">{getDay(event.date)}</span>
+              <div className="absolute top-2 left-2 sm:top-4 sm:left-4 z-20 bg-surface/95 backdrop-blur-md border border-surface-border rounded-xl flex flex-col items-center justify-center w-10 h-10 sm:w-14 sm:h-14 shadow-xl">
+                <span className="text-[8px] sm:text-[10px] font-extrabold uppercase text-desert-orange leading-none mb-1">{getMonth(event.date)}</span>
+                <span className="text-base sm:text-xl font-black text-foreground leading-none">{getDay(event.date)}</span>
               </div>
 
               {event.is_featured && (
-                <div className="absolute top-4 right-4 z-20 bg-desert-pink text-white text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest shadow-xl border border-white/20">
+                <div className="absolute top-2 right-2 sm:top-4 sm:right-4 z-20 bg-desert-pink text-white text-[8px] sm:text-[10px] font-black px-2 py-1 sm:px-3 sm:py-1.5 rounded-full uppercase tracking-widest shadow-xl border border-white/20">
                   Sponsored
                 </div>
               )}
@@ -78,45 +82,49 @@ export default function EventFeed({ events }: { events: any[] }) {
                 </>
               ) : (
                 <div className="absolute inset-0 bg-gradient-to-br from-surface-border to-background flex items-center justify-center">
-                  <span className="text-foreground/30 font-medium text-base">No Flyer</span>
+                  <span className="text-foreground/30 font-medium text-xs sm:text-base">No Flyer</span>
                 </div>
               )}
             </div>
 
-            <div className="p-5 md:p-6 flex flex-col flex-1 w-full justify-center">
+            {/* TEXT SECTION */}
+            {/* Mobile: Less padding | Desktop: Normal padding */}
+            <div className="p-4 sm:p-5 flex flex-col flex-1 w-full justify-center">
               
               <div className="flex justify-start items-center mb-2 gap-2">
-                <span className="bg-surface-border/50 text-xs font-bold px-3 py-1 rounded-full text-desert-orange uppercase tracking-wide">
+                <span className="bg-surface-border/50 text-[10px] sm:text-xs font-bold px-2 py-1 sm:px-3 sm:py-1 rounded-full text-desert-orange uppercase tracking-wide">
                   {event.category}
                 </span>
                 
-                {/* NEW: RECURRING BADGE */}
                 {event.is_recurring && (
-                  <span className="text-neon-cyan/80 text-xs font-bold border border-neon-cyan/20 bg-neon-cyan/5 px-2 py-1 rounded-md flex items-center gap-1">
+                  <span className="text-neon-cyan/80 text-[10px] sm:text-xs font-bold border border-neon-cyan/20 bg-neon-cyan/5 px-2 py-1 rounded-md flex items-center gap-1">
                     ↻ Repeats
                   </span>
                 )}
               </div>
 
-              <h3 className="text-2xl font-bold text-foreground mb-2 group-hover:text-desert-pink transition-colors">
+              <h3 className="text-lg sm:text-2xl font-bold text-foreground mb-1 sm:mb-2 group-hover:text-desert-pink transition-colors line-clamp-2">
                 {event.title}
               </h3>
               
-              <p className="text-base text-foreground/80 mb-4 line-clamp-2">
+              {/* Hide description entirely on mobile list to save space, show 2 lines on desktop card */}
+              <p className="hidden sm:block text-sm sm:text-base text-foreground/80 mb-4 line-clamp-2">
                 {event.description}
               </p>
 
-              <div className="text-sm md:text-base opacity-90 space-y-2 bg-background/50 p-4 rounded-lg border border-surface-border/50 mt-auto">
+              {/* Location & Time Box */}
+              {/* Pushed to the bottom of the card on desktop */}
+              <div className="text-xs sm:text-sm opacity-90 space-y-1 sm:space-y-2 bg-background/50 p-2 sm:p-4 rounded-lg border border-surface-border/50 mt-auto">
                 <div>
-                  <p className="flex items-center gap-2 font-bold text-foreground mb-1">
-                    📍 <span>{event.venue_name}</span>
+                  <p className="flex items-center gap-1 sm:gap-2 font-bold text-foreground mb-1">
+                    📍 <span className="line-clamp-1">{event.venue_name}</span>
                   </p>
-                  <p className="pl-6 text-foreground/70 text-xs md:text-sm uppercase tracking-wide">
+                  <p className="pl-4 sm:pl-6 text-foreground/70 text-[10px] sm:text-xs uppercase tracking-wide line-clamp-1">
                     {event.address} | {event.city}
                   </p>
                 </div>
-                <p className="flex items-center gap-2 pt-2 border-t border-surface-border/50">
-                  ⏰ <span className="font-medium text-base">{event.start_time.slice(0, 5)} {event.end_time ? `- ${event.end_time.slice(0, 5)}` : ""}</span>
+                <p className="flex items-center gap-1 sm:gap-2 pt-1 sm:pt-2 border-t border-surface-border/50">
+                  ⏰ <span className="font-medium text-xs sm:text-sm">{event.start_time.slice(0, 5)} {event.end_time ? `- ${event.end_time.slice(0, 5)}` : ""}</span>
                 </p>
               </div>
 
