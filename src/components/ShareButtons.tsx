@@ -49,7 +49,7 @@ export default function ShareButtons({ title }: { title: string }) {
 
         {/* Copy Link / Mobile Native Share */}
         <button onClick={copyToClipboard} className={`px-4 h-10 rounded-full bg-surface border flex items-center justify-center text-sm font-bold transition-colors ${copied ? 'border-green-500 text-green-500' : 'border-surface-border hover:border-foreground'}`}>
-          {copied ? "Copied!" : navigator.share ? "Share..." : "Copy Link"}
+          {copied ? "Copied!" : (typeof navigator !== "undefined" && navigator.share) ? "Share..." : "Copy Link"}
         </button>
       </div>
     </div>
