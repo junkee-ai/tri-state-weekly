@@ -45,11 +45,17 @@ export default function Navbar() {
             </Link>
             
             {user ? (
-              <button onClick={handleLogout} className="text-foreground/50 hover:text-red-500 text-xs sm:text-sm font-bold transition-colors">
+              <button 
+                onClick={handleLogout} 
+                className="bg-surface border border-surface-border text-foreground/70 hover:border-red-500 hover:text-red-500 text-xs sm:text-sm font-bold px-4 py-2 rounded-full transition-colors cursor-pointer"
+              >
                 Log Out
               </button>
             ) : (
-              <button onClick={() => setIsAuthOpen(true)} className="text-neon-cyan hover:text-neon-cyan/80 text-xs sm:text-sm font-bold transition-colors">
+              <button 
+                onClick={() => setIsAuthOpen(true)} 
+                className="bg-neon-cyan/10 border border-neon-cyan text-neon-cyan text-xs sm:text-sm font-bold px-4 py-2 rounded-full hover:bg-neon-cyan hover:text-black transition-all cursor-pointer shadow-[0_0_10px_rgba(0,243,255,0.2)]"
+              >
                 Login
               </button>
             )}
