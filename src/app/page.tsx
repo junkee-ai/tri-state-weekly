@@ -61,13 +61,12 @@ export default async function Home({
 
   return (
     <main className="min-h-screen p-6 md:p-12 max-w-7xl mx-auto">
-      <header className="mb-8 text-center md:text-left">
-        <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-sunset mb-4">
-          Tri-State Weekly
-        </h1>
-        <p className="text-lg md:text-xl text-foreground/80 max-w-2xl">
-          The social pulse of Fort Mohave, Bullhead City, Laughlin, and Needles.
-        </p>
+      <header className="mb-8 flex justify-center md:justify-start">
+        <img 
+          src="/logo.png" 
+          alt="Tri-State Weekly: Local Events Around The River" 
+          className="w-full max-w-md md:max-w-xl h-auto object-contain"
+        />
       </header>
 
       <section>
