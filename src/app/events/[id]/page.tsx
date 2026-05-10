@@ -1,6 +1,7 @@
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import ShareButtons from "@/components/ShareButtons";
 
 export const dynamic = "force-dynamic";
 
@@ -124,21 +125,51 @@ export default async function EventDetails({
           {/* Description */}
           <div className="pt-4 border-t border-surface-border">
             <h3 className="text-lg font-bold text-foreground mb-4">About this event</h3>
-            <div className="text-foreground/80 leading-relaxed whitespace-pre-wrap text-lg mb-6">
+            <div className="text-foreground/80 leading-relaxed whitespace-pre-wrap text-lg mb-8">
               {event.description}
             </div>
             
-            {/* --- NEW: TICKET BUTTON --- */}
-            {event.ticket_link && (
-              <a 
-                href={event.ticket_link} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="inline-block bg-desert-orange hover:bg-desert-pink text-white font-bold text-lg px-8 py-4 rounded-xl transition-colors shadow-lg"
-              >
-                Get Tickets / More Info
-              </a>
-            )}
+            {/* --- NEW: INTERACTIVE BUTTON GRID --- */}
+            <div className="flex flex-col sm:flex-row gap-4">
+              
+              {/* Ticket / Website Button (Only shows if they provided a link) */}
+              {event.ticket_link && (
+                <a 
+                  href={event.ticket_link} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="flex-1 bg-desert-orange hover:bg-desert-pink text-white font-bold text-base md:text-lg px-6 py-4 rounded-xl transition-colors shadow-[0_0_20px_rgba(255,107,53,0.3)] text-center"
+                >
+                  Visit Website / Tickets
+                </a>
+              )}
+
+              {/* Add to Calendar Button (Generates a dynamic Google Cal URL) */}
+              {(() => {
+                // Formatting the dates for Google Calendar (YYYYMMDDTHHMMSS)
+                const dateClean = event.date.replace(/-/g, '');
+                const startTime = event.start_time.replace(/:/g, '') + '00';
+                const endTime = event.end_time ? event.end_time.replace(/:/g, '') + '00' : startTime;
+                
+                const calUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(event.title)}&dates=${dateClean}T${startTime}/${dateClean}T${endTime}&details=${encodeURIComponent(event.description)}&location=${encodeURIComponent(`${event.venue_name}, ${event.address}, ${event.city} ${event.zip_code}`)}`;
+                
+                return (
+                  <a 
+                    href={calUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="flex-1 bg-surface border-2 border-surface-border hover:border-neon-cyan/50 text-foreground font-bold text-base md:text-lg px-6 py-4 rounded-xl transition-colors text-center flex items-center justify-center gap-2 group"
+                  >
+                    <span className="text-xl group-hover:text-neon-cyan transition-colors">+</span> Add to Calendar
+                  </a>
+                );
+              })()}
+
+            </div>
+
+            {/* --- SOCIAL SHARE ROW --- */}
+            <ShareButtons title={event.title} />
+
           </div>
 
         </div>
