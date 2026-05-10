@@ -31,11 +31,9 @@ export default function RootLayout({
               <img 
                 src="/logo.png" 
                 alt="Tri-State Weekly Icon" 
-                className="w-10 h-10 object-contain drop-shadow-lg" 
+                className="w-30 h-30 object-contain drop-shadow-lg" 
               />
-              <div className="hidden sm:block">
-                <span className="text-desert-orange">Tri-State</span> <span className="text-desert-pink">Weekly</span>
-              </div>
+            
             </Link>
 
             {/* Desktop & Mobile Links */}
