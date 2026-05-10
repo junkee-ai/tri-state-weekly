@@ -2,6 +2,7 @@ import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import ShareButtons from "@/components/ShareButtons";
+import CommentSection from "@/components/CommentSection";
 
 export const dynamic = "force-dynamic";
 
@@ -179,8 +180,13 @@ export default async function EventDetails({
             {/* --- SOCIAL SHARE ROW --- */}
             <ShareButtons title={event.title} />
 
-          </div>
+            {/* --- NEW: COMMENT SECTION --- */}
+            {/* It is now INSIDE the right column, so it aligns perfectly with the text! */}
+            <div className="w-full">
+              <CommentSection eventId={event.id} />
+            </div>
 
+          </div>
         </div>
       </div>
 
