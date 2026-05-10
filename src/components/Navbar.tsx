@@ -33,9 +33,9 @@ export default function Navbar() {
           
           <Link href="/" className="flex items-center hover:opacity-80 transition-opacity">
             <img 
-              src="/nav-logo.png" 
+              src="/logo.png" 
               alt="Tri-State Weekly" 
-              className="h-8 sm:h-10 w-auto object-contain drop-shadow-md" 
+              className="h-8 sm:h-15 w-auto object-contain drop-shadow-md" 
             />
           </Link>
 
