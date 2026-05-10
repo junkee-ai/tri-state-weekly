@@ -5,19 +5,23 @@ import { useState, useEffect } from "react";
 export default function ShareButtons({ title }: { title: string }) {
   const [url, setUrl] = useState("");
   const [copied, setCopied] = useState(false);
+  const [canShare, setCanShare] = useState(false);
 
-  // Grab the URL once the component loads on the user's screen
+  // Grab the URL and check if the phone supports native sharing
   useEffect(() => {
     setUrl(window.location.href);
+    if (typeof navigator !== "undefined" && typeof navigator.share === "function") {
+      setCanShare(true);
+    }
   }, []);
 
   const copyToClipboard = async () => {
     try {
-      if (navigator.share) {
-        // If on mobile, open the native iPhone/Android share menu!
+      if (canShare) {
+        // Mobile native share popup
         await navigator.share({ title: title, url: url });
       } else {
-        // If on desktop, just copy the link
+        // Desktop copy link
         await navigator.clipboard.writeText(url);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
@@ -49,7 +53,7 @@ export default function ShareButtons({ title }: { title: string }) {
 
         {/* Copy Link / Mobile Native Share */}
         <button onClick={copyToClipboard} className={`px-4 h-10 rounded-full bg-surface border flex items-center justify-center text-sm font-bold transition-colors ${copied ? 'border-green-500 text-green-500' : 'border-surface-border hover:border-foreground'}`}>
-          {copied ? "Copied!" : (typeof navigator !== "undefined" && navigator.share) ? "Share..." : "Copy Link"}
+          {copied ? "Copied!" : canShare ? "Share..." : "Copy Link"}
         </button>
       </div>
     </div>
