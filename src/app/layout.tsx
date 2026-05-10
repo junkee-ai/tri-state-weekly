@@ -27,8 +27,15 @@ export default function RootLayout({
           <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
             
             {/* Logo / Home Link */}
-            <Link href="/" className="font-extrabold text-xl tracking-tight hover:opacity-80 transition-opacity">
-              <span className="text-desert-orange">Tri-State</span> <span className="text-desert-pink">Weekly</span>
+            <Link href="/" className="flex items-center gap-3 font-extrabold text-xl tracking-tight hover:opacity-80 transition-opacity">
+              <img 
+                src="/logo.png" 
+                alt="Tri-State Weekly Icon" 
+                className="w-10 h-10 object-contain drop-shadow-lg" 
+              />
+              <div className="hidden sm:block">
+                <span className="text-desert-orange">Tri-State</span> <span className="text-desert-pink">Weekly</span>
+              </div>
             </Link>
 
             {/* Desktop & Mobile Links */}
