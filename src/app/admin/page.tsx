@@ -2,40 +2,64 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import Link from "next/link"; // We need this to link comments to events
 
 export default function AdminDashboard() {
   const [allEvents, setAllEvents] = useState<any[]>([]);
+  const [allComments, setAllComments] = useState<any[]>([]); // NEW: Store comments
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"pending" | "live">("pending");
+  
+  // NEW: Added "chatter" to the Tabs
+  const [activeTab, setActiveTab] = useState<"pending" | "live" | "chatter">("pending");
   
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editFormData, setEditFormData] = useState<any>({});
   const [isDuplicateMode, setIsDuplicateMode] = useState(false);
-
   const [aiText, setAiText] = useState("");
   const [isAiLoading, setIsAiLoading] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [subscriberCount, setSubscriberCount] = useState<number>(0);
-  const [isUploading, setIsUploading] = useState(false); // NEW: Tracks image upload status
 
-  async function fetchEvents() {
-    const { data, error } = await supabase.from("events").select("*").order("created_at", { ascending: false });
-    if (!error && data) setAllEvents(data);
-    const { count, error: countError } = await supabase
-      .from("subscribers")
-      .select("*", { count: 'exact', head: true });
-      
-    if (!countError && count !== null) setSubscriberCount(count);
+  // --- FETCH DATA ---
+  async function fetchDashboardData() {
+    setLoading(true);
+    
+    // 1. Fetch Events
+    const { data: events } = await supabase.from("events").select("*").order("created_at", { ascending: false });
+    if (events) setAllEvents(events);
+
+    // 2. Fetch Subs
+    const { count } = await supabase.from("subscribers").select("*", { count: 'exact', head: true });
+    if (count !== null) setSubscriberCount(count);
+
+    // 3. Fetch All Comments (Pulling in the Event Title and the Username!)
+    const { data: comments } = await supabase
+      .from("comments")
+      .select("*, events(title), profiles(username)")
+      .order("created_at", { ascending: false });
+    if (comments) setAllComments(comments);
 
     setLoading(false);
   }
 
-  useEffect(() => { fetchEvents(); }, []);
+  useEffect(() => { fetchDashboardData(); }, []);
 
   const pendingEvents = allEvents.filter(e => !e.is_approved);
   const liveEvents = allEvents.filter(e => e.is_approved);
   const displayedEvents = activeTab === "pending" ? pendingEvents : liveEvents;
 
-  // --- ACTIONS ---
+  // --- COMMENT ACTIONS ---
+  async function handleDeleteComment(commentId: string) {
+    if (!window.confirm("Are you sure you want to nuke this comment?")) return;
+    const { error } = await supabase.from("comments").delete().eq("id", commentId);
+    if (!error) {
+      setAllComments(allComments.filter(c => c.id !== commentId)); // Remove from screen
+    } else {
+      alert("Error deleting comment: " + error.message);
+    }
+  }
+
+  // --- EVENT ACTIONS ---
   async function handleApprove(id: string) {
     const { error } = await supabase.from("events").update({ is_approved: true }).eq("id", id);
     if (!error) setAllEvents(allEvents.map(e => e.id === id ? { ...e, is_approved: true } : e));
@@ -57,7 +81,6 @@ export default function AdminDashboard() {
     if (!error) setAllEvents(allEvents.map(e => e.id === id ? { ...e, is_featured: !currentStatus } : e));
   }
 
-  // --- EDITING / DUPLICATING ---
   function handleDuplicate(event: any) {
     const { id, created_at, ...duplicatedData } = event; 
     setEditingId(event.id); 
@@ -75,20 +98,15 @@ export default function AdminDashboard() {
     setEditFormData({ ...editFormData, [e.target.name]: e.target.value });
   }
 
-  // --- NEW: DIRECT IMAGE UPLOAD FOR ADMIN ---
   async function handleAdminImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-
     setIsUploading(true);
     const fileExt = file.name.split('.').pop();
     const fileName = `${Date.now()}.${fileExt}`;
-
     const { error } = await supabase.storage.from("flyers").upload(fileName, file);
-    
-    if (error) {
-      alert("Upload failed: " + error.message);
-    } else {
+    if (error) alert("Upload failed: " + error.message);
+    else {
       const { data } = supabase.storage.from("flyers").getPublicUrl(fileName);
       setEditFormData({ ...editFormData, image_url: data.publicUrl });
     }
@@ -99,7 +117,7 @@ export default function AdminDashboard() {
     if (isDuplicateMode) {
       const { error } = await supabase.from("events").insert([editFormData]);
       if (!error) {
-        fetchEvents(); 
+        fetchDashboardData(); 
         setEditingId(null);
         setIsDuplicateMode(false);
         alert("New event created successfully!");
@@ -114,54 +132,34 @@ export default function AdminDashboard() {
     }
   }
 
-  // --- UPGRADED AI GENERATOR ---
   async function handleAIGenerate() {
     if (!aiText) return alert("Please paste text or a URL first!");
     setIsAiLoading(true);
-
     try {
       const response = await fetch("/api/parse-event", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text: aiText }),
       });
-
       const result = await response.json();
-
       if (response.ok && result.data.length > 0) {
-        
-        // Clean up the AI data before sending to the database
         const eventsToInsert = result.data.map((event: any) => ({
           ...event,
-          is_approved: false, // Force it to be pending
-          
-          // Safety Check: If AI sends an empty string for times, fix them so the DB doesn't crash
-          start_time: event.start_time && event.start_time !== "" ? event.start_time : "12:00", // Default to Noon if missing
+          is_approved: false,
+          start_time: event.start_time && event.start_time !== "" ? event.start_time : "12:00", 
           end_time: event.end_time && event.end_time !== "" ? event.end_time : null,
-          
-          // Safety Check: If AI leaves mandatory fields blank, add a placeholder
           title: event.title || "Unknown Event Title",
-          date: event.date || new Date().toISOString().split("T")[0], // Default to today
+          date: event.date || new Date().toISOString().split("T")[0],
         }));
-
-        // Insert them all into the database instantly!
         const { error } = await supabase.from("events").insert(eventsToInsert);
-
         if (!error) {
           alert(`Success! Imported ${eventsToInsert.length} event(s) into your Pending tab.`);
           setAiText(""); 
-          setActiveTab("pending"); // Switch to pending tab so they can see them
-          fetchEvents(); // Reload the list
-        } else {
-          alert("Database Error: " + error.message);
-        }
-
-      } else {
-        alert("AI Error: Could not find any events. " + (result.error || ""));
-      }
-    } catch (error: any) {
-      alert("Failed to reach AI: " + error.message);
-    }
+          setActiveTab("pending"); 
+          fetchDashboardData(); 
+        } else alert("Database Error: " + error.message);
+      } else alert("AI Error: Could not find any events. " + (result.error || ""));
+    } catch (error: any) { alert("Failed to reach AI: " + error.message); }
     setIsAiLoading(false);
   }
 
@@ -172,163 +170,72 @@ export default function AdminDashboard() {
           <h1 className="text-3xl font-bold text-neon-cyan mb-2">Admin Dashboard</h1>
           <p className="text-foreground/70">Manage submissions, live events, and sponsorships.</p>
         </div>
-        
-        {/* --- NEW: SUBSCRIBER BADGE --- */}
         <div className="bg-surface border border-surface-border px-6 py-3 rounded-xl shadow-lg flex items-center gap-3">
           <span className="text-2xl">📬</span>
           <div>
-            <p className="text-xs text-foreground/50 font-bold uppercase tracking-wider">Total Subscribers</p>
+            <p className="text-xs text-foreground/50 font-bold uppercase tracking-wider">Total Subs</p>
             <p className="text-2xl font-black text-foreground">{subscriberCount}</p>
           </div>
         </div>
       </div>
 
-      {/* AI IMPORT BOX */}
       <div className="bg-desert-orange/10 border border-desert-orange/30 p-6 rounded-2xl mb-8 shadow-lg">
         <h2 className="text-lg font-bold text-desert-orange mb-2 flex items-center gap-2">
           <span>✨</span> Magic AI Importer
         </h2>
-        <p className="text-sm text-foreground/70 mb-4">Paste messy text from a Facebook post or flyer. The AI will extract the details and prepare a new event for you to review.</p>
-        <textarea 
-          rows={3} 
-          value={aiText}
-          onChange={(e) => setAiText(e.target.value)}
-          placeholder="e.g. Live band tonight at River Grill! $10 cover starts at 8pm..."
-          className="w-full bg-background border border-surface-border rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-desert-orange mb-4"
-        ></textarea>
-        <button 
-          onClick={handleAIGenerate}
-          disabled={isAiLoading}
-          className="bg-desert-orange hover:bg-desert-pink text-white font-bold py-2 px-6 rounded-lg transition-colors shadow-lg disabled:opacity-50"
-        >
-          {isAiLoading ? "Thinking..." : "Generate Event"}
+        <p className="text-sm text-foreground/70 mb-4">Paste a URL or messy text from a Facebook post. The AI will extract the details.</p>
+        <textarea rows={2} value={aiText} onChange={(e) => setAiText(e.target.value)} placeholder="e.g. https://www.avicasino.com/entertainment" className="w-full bg-background border border-surface-border rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-desert-orange mb-4"></textarea>
+        <button onClick={handleAIGenerate} disabled={isAiLoading} className="bg-desert-orange hover:bg-desert-pink text-white font-bold py-2 px-6 rounded-lg transition-colors shadow-lg disabled:opacity-50">
+          {isAiLoading ? "Scanning URL..." : "Generate Event(s)"}
         </button>
       </div>
 
-      <div className="flex gap-4 mb-8 border-b border-surface-border pb-4">
-        <button onClick={() => setActiveTab("pending")} className={`font-bold pb-2 px-2 transition-colors ${activeTab === "pending" ? "text-desert-orange border-b-2 border-desert-orange" : "text-foreground/50 hover:text-foreground"}`}>
+      <div className="flex overflow-x-auto gap-4 mb-8 border-b border-surface-border pb-4">
+        <button onClick={() => setActiveTab("pending")} className={`font-bold pb-2 px-2 transition-colors whitespace-nowrap ${activeTab === "pending" ? "text-desert-orange border-b-2 border-desert-orange" : "text-foreground/50 hover:text-foreground"}`}>
           Pending ({pendingEvents.length})
         </button>
-        <button onClick={() => setActiveTab("live")} className={`font-bold pb-2 px-2 transition-colors ${activeTab === "live" ? "text-neon-cyan border-b-2 border-neon-cyan" : "text-foreground/50 hover:text-foreground"}`}>
+        <button onClick={() => setActiveTab("live")} className={`font-bold pb-2 px-2 transition-colors whitespace-nowrap ${activeTab === "live" ? "text-neon-cyan border-b-2 border-neon-cyan" : "text-foreground/50 hover:text-foreground"}`}>
           Live Events ({liveEvents.length})
+        </button>
+        <button onClick={() => setActiveTab("chatter")} className={`font-bold pb-2 px-2 transition-colors whitespace-nowrap ${activeTab === "chatter" ? "text-desert-pink border-b-2 border-desert-pink" : "text-foreground/50 hover:text-foreground"}`}>
+          Chatter ({allComments.length})
         </button>
       </div>
 
       {loading ? (
-        <p>Loading events...</p>
-      ) : displayedEvents.length === 0 && editingId !== "ai_new_event" ? (
+        <p>Loading...</p>
+      ) : activeTab === "chatter" ? (
+        // --- NEW: CHATTER MODERATION TAB ---
+        <div className="space-y-4">
+          {allComments.length === 0 ? (
+            <div className="bg-surface border border-surface-border p-8 rounded-xl text-center text-foreground/50">No comments on the site yet.</div>
+          ) : (
+            allComments.map(comment => (
+              <div key={comment.id} className="bg-surface border border-surface-border rounded-xl p-6 shadow-lg flex flex-col md:flex-row gap-4 justify-between items-start">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="font-bold text-neon-cyan">{comment.profiles?.username || "Unknown"}</span>
+                    <span className="text-foreground/40 text-xs">on</span>
+                    <Link href={`/events/${comment.event_id}`} className="text-desert-orange hover:underline text-xs font-bold bg-desert-orange/10 px-2 py-1 rounded">
+                      {comment.events?.title || "Deleted Event"}
+                    </Link>
+                  </div>
+                  <p className="text-foreground/90 whitespace-pre-wrap">{comment.content}</p>
+                  <p className="text-foreground/40 text-[10px] mt-2">{new Date(comment.created_at).toLocaleString()}</p>
+                </div>
+                <button onClick={() => handleDeleteComment(comment.id)} className="shrink-0 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white text-xs font-bold py-2 px-4 rounded transition-colors">
+                  Nuke Comment
+                </button>
+              </div>
+            ))
+          )}
+        </div>
+      ) : displayedEvents.length === 0 ? (
         <div className="bg-surface border border-surface-border p-8 rounded-xl text-center text-foreground/50">
           No events found in this tab.
         </div>
       ) : (
         <div className="space-y-6">
-          
-          {/* SPECIAL AI PREVIEW CARD */}
-          {editingId === "ai_new_event" && (
-            <div className="bg-surface border border-desert-orange rounded-xl p-6 flex flex-col gap-6 shadow-[0_0_15px_rgba(255,107,53,0.2)]">
-              <h3 className="text-desert-orange font-bold uppercase text-sm">✨ Review AI Generated Event</h3>
-              <div className="space-y-4 bg-background/50 p-4 rounded-lg border border-surface-border">
-                
-                <div>
-                  <label className="text-xs text-foreground/50 font-bold uppercase">Title</label>
-                  <input name="title" value={editFormData.title || ""} onChange={handleFormChange} className="w-full bg-surface border border-surface-border rounded px-3 py-2 text-sm focus:border-desert-orange outline-none" />
-                </div>
-                
-                <div className="grid grid-cols-3 gap-2">
-                  <div>
-                    <label className="text-xs text-foreground/50 font-bold uppercase">Date</label>
-                    <input type="date" name="date" value={editFormData.date || ""} onChange={handleFormChange} className="w-full bg-surface border border-surface-border rounded px-3 py-2 text-sm focus:border-desert-orange outline-none" />
-                  </div>
-                  <div>
-                    <label className="text-xs text-foreground/50 font-bold uppercase">Start</label>
-                    <input type="time" name="start_time" value={editFormData.start_time || ""} onChange={handleFormChange} className="w-full bg-surface border border-surface-border rounded px-3 py-2 text-sm focus:border-desert-orange outline-none" />
-                  </div>
-                  <div>
-                    <label className="text-xs text-foreground/50 font-bold uppercase">End</label>
-                    <input type="time" name="end_time" value={editFormData.end_time || ""} onChange={handleFormChange} className="w-full bg-surface border border-surface-border rounded px-3 py-2 text-sm focus:border-desert-orange outline-none" />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className="text-xs text-foreground/50 font-bold uppercase">Category</label>
-                    <select name="category" value={editFormData.category || ""} onChange={handleFormChange} className="w-full bg-surface border border-surface-border rounded px-3 py-2 text-sm focus:border-desert-orange outline-none">
-                      <option value="Live Music">Live Music</option>
-                      <option value="Nightlife">Nightlife</option>
-                      <option value="Food & Drink">Food & Drink</option>
-                      <option value="Comedy">Comedy</option>
-                      <option value="Community">Community</option>
-                      <option value="Family">Family</option>
-                      <option value="Outdoor & River">Outdoor & River</option>
-                      <option value="Pets & Animals">Pets & Animals</option>
-                      <option value="Classes & Workshops">Classes & Workshops</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="text-xs text-foreground/50 font-bold uppercase">City</label>
-                    <select name="city" value={editFormData.city || ""} onChange={handleFormChange} className="w-full bg-surface border border-surface-border rounded px-3 py-2 text-sm focus:border-desert-orange outline-none">
-                      <option value="Fort Mohave">Fort Mohave</option>
-                      <option value="Bullhead City">Bullhead City</option>
-                      <option value="Laughlin">Laughlin</option>
-                      <option value="Needles">Needles</option>
-                      <option value="Mohave Valley">Mohave Valley</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                    <div>
-                    <label className="text-xs text-foreground/50 font-bold uppercase">Venue Name</label>
-                    <input name="venue_name" value={editFormData.venue_name || ""} onChange={handleFormChange} className="w-full bg-surface border border-surface-border rounded px-3 py-2 text-sm focus:border-desert-orange outline-none" />
-                  </div>
-                  <div>
-                    <label className="text-xs text-foreground/50 font-bold uppercase">Address</label>
-                    <input name="address" value={editFormData.address || ""} onChange={handleFormChange} className="w-full bg-surface border border-surface-border rounded px-3 py-2 text-sm focus:border-desert-orange outline-none" />
-                  </div>
-                  <div>
-                    <label className="text-xs text-foreground/50 font-bold uppercase">Zip Code</label>
-                    <input name="zip_code" value={editFormData.zip_code || ""} onChange={handleFormChange} className="w-full bg-surface border border-surface-border rounded px-3 py-2 text-sm focus:border-desert-orange outline-none" />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                  <div>
-                    <label className="text-xs text-foreground/50 font-bold uppercase">Ticket/Info Link</label>
-                    <input name="ticket_link" type="url" value={editFormData.ticket_link || ""} onChange={handleFormChange} className="w-full bg-surface border border-surface-border rounded px-3 py-2 text-sm focus:border-desert-orange outline-none" />
-                  </div>
-                  
-                  {/* --- NEW UPLOAD BUTTON FOR AI CARD --- */}
-                  <div>
-                    <label className="text-xs text-foreground/50 font-bold uppercase">Flyer Image</label>
-                    <div className="flex gap-2 mt-1">
-                      <input name="image_url" type="text" placeholder="Image URL..." value={editFormData.image_url || ""} onChange={handleFormChange} className="flex-1 bg-surface border border-surface-border rounded px-3 py-2 text-xs text-foreground/50 focus:border-desert-orange outline-none" />
-                      <label className="bg-desert-orange hover:bg-desert-pink text-white text-xs font-bold py-2 px-4 rounded cursor-pointer transition-colors flex items-center shrink-0">
-                        {isUploading ? "..." : "Upload"}
-                        <input type="file" accept="image/*" className="hidden" onChange={handleAdminImageUpload} disabled={isUploading} />
-                      </label>
-                    </div>
-                  </div>
-
-                </div>
-
-                <div>
-                  <label className="text-xs text-foreground/50 font-bold uppercase">Description</label>
-                  <textarea name="description" rows={4} value={editFormData.description || ""} onChange={handleFormChange} className="w-full bg-surface border border-surface-border rounded px-3 py-2 text-sm focus:border-desert-orange outline-none"></textarea>
-                </div>
-
-                <div className="flex gap-4 pt-4">
-                  <button onClick={() => handleSave("new")} className="flex-1 bg-desert-orange hover:bg-desert-pink text-white font-bold py-3 px-4 rounded-lg transition-colors">
-                    Save as New Event
-                  </button>
-                  <button onClick={() => {setEditingId(null); setIsDuplicateMode(false);}} className="flex-1 bg-surface-border hover:bg-surface-border/80 text-white font-bold py-3 px-4 rounded-lg transition-colors">
-                    Discard
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* NORMAL CARDS */}
           {displayedEvents.map((event) => {
             const isEditing = editingId === event.id;
 
@@ -407,8 +314,6 @@ export default function AdminDashboard() {
                           <label className="text-xs text-foreground/50 font-bold uppercase">Ticket/Info Link</label>
                           <input name="ticket_link" type="url" value={editFormData.ticket_link || ""} onChange={handleFormChange} className="w-full bg-surface border border-surface-border rounded px-3 py-2 text-sm focus:border-desert-orange outline-none" />
                         </div>
-                        
-                        {/* --- NEW UPLOAD BUTTON FOR NORMAL EDIT CARD --- */}
                         <div>
                           <label className="text-xs text-foreground/50 font-bold uppercase">Flyer Image</label>
                           <div className="flex gap-2 mt-1">
@@ -419,7 +324,6 @@ export default function AdminDashboard() {
                             </label>
                           </div>
                         </div>
-
                       </div>
                       <div>
                         <label className="text-xs text-foreground/50 font-bold uppercase">Description</label>
@@ -463,7 +367,7 @@ export default function AdminDashboard() {
                 <div className="flex md:flex-col gap-3 shrink-0 justify-center min-w-[140px]">
                   {isEditing ? (
                     <>
-                      <button onClick={() => handleSave(event.id)} className="bg-neon-cyan hover:bg-neon-cyan/80 text-black font-bold py-2 px-4 rounded-lg transition-colors w-full">
+                      <button onClick={() => handleSave("new")} className="bg-neon-cyan hover:bg-neon-cyan/80 text-black font-bold py-2 px-4 rounded-lg transition-colors w-full">
                         {isDuplicateMode ? "Save as New Event" : "Save Changes"}
                       </button>
                       <button onClick={() => {setEditingId(null); setIsDuplicateMode(false);}} className="bg-surface-border hover:bg-surface-border/80 text-white font-bold py-2 px-4 rounded-lg transition-colors w-full">
