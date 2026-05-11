@@ -113,22 +113,33 @@ export default function AdminDashboard() {
     setIsUploading(false);
   }
 
-  async function handleSave(id: string) {
+  async function handleSave(id?: string) {
     if (isDuplicateMode) {
+      // It's a duplicate or an AI Event, so INSERT a new row
+      // We ignore the 'id' entirely because the database generates a new UUID automatically!
       const { error } = await supabase.from("events").insert([editFormData]);
+      
       if (!error) {
         fetchDashboardData(); 
         setEditingId(null);
         setIsDuplicateMode(false);
         alert("New event created successfully!");
-      } else alert("Error saving: " + error.message);
+      } else {
+        alert("Error saving: " + error.message);
+      }
     } else {
+      // It's a normal edit, so UPDATE the existing row using the real ID
+      if (!id) return; // Safety check
+      
       const { error } = await supabase.from("events").update({ ...editFormData, is_approved: true }).eq("id", id);
+      
       if (!error) {
         setAllEvents(allEvents.map(e => e.id === id ? { ...editFormData, is_approved: true } : e));
         setEditingId(null);
         alert("Changes saved!");
-      } else alert("Error saving: " + error.message);
+      } else {
+        alert("Error saving: " + error.message);
+      }
     }
   }
 
@@ -367,7 +378,7 @@ export default function AdminDashboard() {
                 <div className="flex md:flex-col gap-3 shrink-0 justify-center min-w-[140px]">
                   {isEditing ? (
                     <>
-                      <button onClick={() => handleSave("new")} className="bg-neon-cyan hover:bg-neon-cyan/80 text-black font-bold py-2 px-4 rounded-lg transition-colors w-full">
+                      <button onClick={() => handleSave()} className="bg-neon-cyan hover:bg-neon-cyan/80 text-black font-bold py-2 px-4 rounded-lg transition-colors w-full">
                         {isDuplicateMode ? "Save as New Event" : "Save Changes"}
                       </button>
                       <button onClick={() => {setEditingId(null); setIsDuplicateMode(false);}} className="bg-surface-border hover:bg-surface-border/80 text-white font-bold py-2 px-4 rounded-lg transition-colors w-full">
