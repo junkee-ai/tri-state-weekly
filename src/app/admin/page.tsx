@@ -114,30 +114,36 @@ export default function AdminDashboard() {
   }
 
   async function handleSave(id?: string) {
+    // Determine the actual ID we are working with
+    const targetId = id || editingId; 
+
     if (isDuplicateMode) {
-      // It's a duplicate or an AI Event, so INSERT a new row
-      // We ignore the 'id' entirely because the database generates a new UUID automatically!
+      // Create new event
       const { error } = await supabase.from("events").insert([editFormData]);
-      
       if (!error) {
         fetchDashboardData(); 
         setEditingId(null);
         setIsDuplicateMode(false);
         alert("New event created successfully!");
       } else {
+        console.error("Insert Error:", error);
         alert("Error saving: " + error.message);
       }
     } else {
-      // It's a normal edit, so UPDATE the existing row using the real ID
-      if (!id) return; // Safety check
+      // Update existing event
+      if (!targetId) {
+        alert("Error: No event ID found to update!");
+        return;
+      }
       
-      const { error } = await supabase.from("events").update({ ...editFormData, is_approved: true }).eq("id", id);
+      const { error } = await supabase.from("events").update({ ...editFormData, is_approved: true }).eq("id", targetId);
       
       if (!error) {
-        setAllEvents(allEvents.map(e => e.id === id ? { ...editFormData, is_approved: true } : e));
+        setAllEvents(allEvents.map(e => e.id === targetId ? { ...editFormData, is_approved: true } : e));
         setEditingId(null);
         alert("Changes saved!");
       } else {
+        console.error("Update Error:", error);
         alert("Error saving: " + error.message);
       }
     }
@@ -378,8 +384,8 @@ export default function AdminDashboard() {
                 <div className="flex md:flex-col gap-3 shrink-0 justify-center min-w-[140px]">
                   {isEditing ? (
                     <>
-                      <button onClick={() => handleSave()} className="bg-neon-cyan hover:bg-neon-cyan/80 text-black font-bold py-2 px-4 rounded-lg transition-colors w-full">
-                        {isDuplicateMode ? "Save as New Event" : "Save Changes"}
+                      <button onClick={(e) => { e.preventDefault(); handleSave(event.id); }} className="bg-neon-cyan hover:bg-neon-cyan/80 text-black font-bold py-2 px-4 rounded-lg transition-colors w-full">
+                        Save Changes
                       </button>
                       <button onClick={() => {setEditingId(null); setIsDuplicateMode(false);}} className="bg-surface-border hover:bg-surface-border/80 text-white font-bold py-2 px-4 rounded-lg transition-colors w-full">
                         Cancel
