@@ -75,7 +75,17 @@ export default function AdminDashboard() {
   }
 
   async function handleSaveDeal() {
-    const dealPayload = { ...editDealData, is_approved: true }; // Deals are auto-approved since Admin makes them
+    // Add safety fallbacks so the database NEVER crashes on a blank box!
+    const dealPayload = { 
+      ...editDealData, 
+      is_approved: true,
+      description: editDealData.description || " ", // Fallback to an empty space
+      business_name: editDealData.business_name || "Unknown Business",
+      deal_title: editDealData.deal_title || "Special Deal",
+      city: editDealData.city || "Fort Mohave",
+      address: editDealData.address || " ",
+      category: editDealData.category || "Food & Drink"
+    }; // Deals are auto-approved since Admin makes them
     
     if (isAddingDeal) {
       const { error } = await supabase.from("deals").insert([dealPayload]);
