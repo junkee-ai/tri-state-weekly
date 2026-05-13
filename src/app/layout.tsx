@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
+import Chatbot from "@/components/Chatbot";
 
 const outfit = Outfit({ 
   subsets: ["latin"],
@@ -28,7 +29,10 @@ export default function RootLayout({
         {/* The actual page content loads here */}
         {children}
 
-      </body>
-    </html>
-  );
-}
+            {/* --- THE AI ASSISTANT --- */}
+            <Chatbot />
+
+          </body>
+        </html>
+      );
+    }
