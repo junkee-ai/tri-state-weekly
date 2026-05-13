@@ -161,7 +161,7 @@ export default async function EventDetails({
               {(() => {
                 // Formatting the dates for Google Calendar (YYYYMMDDTHHMMSS)
                 const dateClean = event.date.replace(/-/g, '');
-                const startTime = event.start_time.replace(/:/g, '') + '00';
+                const startTime = event.start_time ? event.start_time.replace(/:/g, '') + '00' : '120000';
                 const endTime = event.end_time ? event.end_time.replace(/:/g, '') + '00' : startTime;
                 
                 const calUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(event.title)}&dates=${dateClean}T${startTime}/${dateClean}T${endTime}&details=${encodeURIComponent(event.description)}&location=${encodeURIComponent(`${event.venue_name}, ${event.address}, ${event.city} ${event.zip_code}`)}`;
