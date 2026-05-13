@@ -36,7 +36,7 @@ export default function SubmitEvent() {
     // 2. Setup the Base Event Data (Everything EXCEPT the date)
     const baseEvent = {
       title: formData.get("title"),
-      start_time: formData.get("start_time"),
+      start_time: formData.get("start_time") || null,
       end_time: formData.get("end_time") || null, // Safely handles empty end times
       city: formData.get("city"),
       category: formData.get("category"),
@@ -111,8 +111,8 @@ export default function SubmitEvent() {
             <input required name="date" type="date" className="w-full bg-background border border-surface-border rounded-lg px-4 py-3 focus:outline-none focus:border-desert-orange" />
           </div>
           <div>
-            <label className="block text-base font-medium mb-2">Start Time *</label>
-            <input required name="start_time" type="time" className="w-full bg-background border border-surface-border rounded-lg px-4 py-3 focus:outline-none focus:border-desert-orange" />
+            <label className="block text-base font-medium mb-2">Start Time</label>
+            <input name="start_time" type="time" className="w-full bg-background border border-surface-border rounded-lg px-4 py-3 focus:outline-none focus:border-desert-orange" />
           </div>
           <div>
             <label className="block text-base font-medium mb-2">End Time</label>

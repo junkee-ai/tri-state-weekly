@@ -188,10 +188,10 @@ export default function AdminDashboard() {
 
     // --- SAFETY CHECK FOR EMPTY TIMES ---
     const safePayload = {
-      ...editFormData,
-      start_time: editFormData.start_time && editFormData.start_time !== "" ? editFormData.start_time : "12:00",
-      end_time: editFormData.end_time && editFormData.end_time !== "" ? editFormData.end_time : null,
-      is_approved: true
+        ...editFormData,
+        start_time: editFormData.start_time && editFormData.start_time !== "" ? editFormData.start_time : null,
+        end_time: editFormData.end_time && editFormData.end_time !== "" ? editFormData.end_time : null,
+        is_approved: true
     };
 
     if (isDuplicateMode) {
@@ -225,13 +225,13 @@ export default function AdminDashboard() {
       const result = await response.json();
       if (response.ok && result.data.length > 0) {
         const eventsToInsert = result.data.map((event: any) => ({
-          ...event,
-          is_approved: false,
-          start_time: event.start_time && event.start_time !== "" ? event.start_time : "12:00", 
-          end_time: event.end_time && event.end_time !== "" ? event.end_time : null,
-          title: event.title || "Unknown Event Title",
-          date: event.date || new Date().toISOString().split("T")[0],
-        }));
+                ...event,
+                is_approved: false,
+                start_time: event.start_time && event.start_time !== "" ? event.start_time : null, 
+                end_time: event.end_time && event.end_time !== "" ? event.end_time : null,
+                title: event.title || "Unknown Event Title",
+                date: event.date || new Date().toISOString().split("T")[0],
+              }));
         await supabase.from("events").insert(eventsToInsert);
         setAiText(""); 
         setActiveTab("pending"); 
@@ -536,6 +536,7 @@ export default function AdminDashboard() {
                       <div className="text-xs text-foreground/50 pt-2 border-t border-surface-border mt-2">
                         <p><strong>Venue:</strong> {event.venue_name} ({event.address}, {event.zip_code})</p>
                         <p><strong>Date/Time:</strong> {event.date} | {(() => {
+                          if (!event.start_time) return "Time TBD";
                           const formatTime = (t: string) => {
                             if(!t) return "";
                             let [h, m] = t.split(":");

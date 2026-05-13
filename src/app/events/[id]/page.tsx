@@ -101,8 +101,11 @@ export default async function EventDetails({
               <div className="pt-1">
                 <h3 className="font-bold text-foreground text-lg mb-1">Time</h3>
                 <p className="text-foreground/70">
-                    {formatTime(event.start_time)} 
-                    {event.end_time ? ` - ${formatTime(event.end_time)}` : ""}
+                  {event.start_time ? (
+                    `${formatTime(event.start_time)} ${event.end_time ? `- ${formatTime(event.end_time)}` : ""}`
+                  ) : (
+                    "Time TBD"
+                  )}
                 </p>
               </div>
             </div>

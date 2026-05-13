@@ -119,7 +119,13 @@ export default function EventFeed({ events }: { events: any[] }) {
                   </p>
                 </div>
                 <p className="flex items-center gap-2 pt-2 border-t border-surface-border/50">
-                  ⏰ <span className="font-medium text-sm"> {formatTime(event.start_time)} {event.end_time ? `- ${formatTime(event.end_time)}` : ""} </span>
+                  ⏰ <span className="font-medium text-sm">
+                    {event.start_time ? (
+                      `${formatTime(event.start_time)} ${event.end_time ? `- ${formatTime(event.end_time)}` : ""}`
+                    ) : (
+                      "Time TBD"
+                    )}
+                  </span>
                 </p>
               </div>
 
