@@ -418,28 +418,164 @@ export default function AdminDashboard() {
               </div>
             </div>
           )}
-          {displayedEvents.map(event => {
+          {displayedEvents.map((event) => {
             const isEditing = editingId === event.id;
+
             return (
-              <div key={event.id} className="bg-surface border border-surface-border rounded-xl p-6 flex flex-col md:flex-row gap-6 shadow-lg">
-                <div className="flex-1 space-y-2">
+              <div key={event.id} className={`bg-surface border ${event.is_featured ? 'border-desert-pink shadow-desert-pink/20' : 'border-surface-border'} rounded-xl p-6 flex flex-col md:flex-row gap-6 shadow-lg relative`}>
+                
+                {event.is_featured && (
+                  <div className="absolute -top-3 -right-3 bg-desert-pink text-white text-xs font-black px-3 py-1 rounded-full shadow-lg">
+                    ★ PINNED
+                  </div>
+                )}
+
+                <div className="flex-1 space-y-4">
                   {isEditing ? (
-                    <div className="space-y-4">
-                      <input name="title" value={editFormData.title || ""} onChange={handleFormChange} className="w-full bg-background border border-surface-border rounded px-3 py-2 text-sm" />
-                      <button onClick={(e) => { e.preventDefault(); handleSave(event.id); }} className="bg-neon-cyan text-black font-bold py-2 px-4 rounded w-full">Save Changes</button>
+                    <div className="space-y-4 bg-background/50 p-4 rounded-lg border border-surface-border">
+                      <div>
+                        <label className="text-xs text-foreground/50 font-bold uppercase">Title</label>
+                        <input name="title" value={editFormData.title || ""} onChange={handleFormChange} className="w-full bg-surface border border-surface-border rounded px-3 py-2 text-sm focus:border-desert-orange outline-none" />
+                      </div>
+                      <div className="grid grid-cols-3 gap-2">
+                        <div>
+                          <label className="text-xs text-foreground/50 font-bold uppercase">Date</label>
+                          <input type="date" name="date" value={editFormData.date || ""} onChange={handleFormChange} className="w-full bg-surface border border-surface-border rounded px-3 py-2 text-sm focus:border-desert-orange outline-none" />
+                        </div>
+                        <div>
+                          <label className="text-xs text-foreground/50 font-bold uppercase">Start</label>
+                          <input type="time" name="start_time" value={editFormData.start_time || ""} onChange={handleFormChange} className="w-full bg-surface border border-surface-border rounded px-3 py-2 text-sm focus:border-desert-orange outline-none" />
+                        </div>
+                        <div>
+                          <label className="text-xs text-foreground/50 font-bold uppercase">End</label>
+                          <input type="time" name="end_time" value={editFormData.end_time || ""} onChange={handleFormChange} className="w-full bg-surface border border-surface-border rounded px-3 py-2 text-sm focus:border-desert-orange outline-none" />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <label className="text-xs text-foreground/50 font-bold uppercase">Category</label>
+                          <select name="category" value={editFormData.category || ""} onChange={handleFormChange} className="w-full bg-surface border border-surface-border rounded px-3 py-2 text-sm focus:border-desert-orange outline-none">
+                            <option value="Live Music">Live Music</option>
+                            <option value="Nightlife">Nightlife</option>
+                            <option value="Food & Drink">Food & Drink</option>
+                            <option value="Comedy">Comedy</option>
+                            <option value="Community">Community</option>
+                            <option value="Family">Family</option>
+                            <option value="Outdoor & River">Outdoor & River</option>
+                            <option value="Pets & Animals">Pets & Animals</option>
+                            <option value="Classes & Workshops">Classes & Workshops</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="text-xs text-foreground/50 font-bold uppercase">City</label>
+                          <select name="city" value={editFormData.city || ""} onChange={handleFormChange} className="w-full bg-surface border border-surface-border rounded px-3 py-2 text-sm focus:border-desert-orange outline-none">
+                            <option value="Fort Mohave">Fort Mohave</option>
+                            <option value="Bullhead City">Bullhead City</option>
+                            <option value="Laughlin">Laughlin</option>
+                            <option value="Needles">Needles</option>
+                            <option value="Mohave Valley">Mohave Valley</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                         <div>
+                          <label className="text-xs text-foreground/50 font-bold uppercase">Venue Name</label>
+                          <input name="venue_name" value={editFormData.venue_name || ""} onChange={handleFormChange} className="w-full bg-surface border border-surface-border rounded px-3 py-2 text-sm focus:border-desert-orange outline-none" />
+                        </div>
+                        <div>
+                          <label className="text-xs text-foreground/50 font-bold uppercase">Address</label>
+                          <input name="address" value={editFormData.address || ""} onChange={handleFormChange} className="w-full bg-surface border border-surface-border rounded px-3 py-2 text-sm focus:border-desert-orange outline-none" />
+                        </div>
+                        <div>
+                          <label className="text-xs text-foreground/50 font-bold uppercase">Zip Code</label>
+                          <input name="zip_code" value={editFormData.zip_code || ""} onChange={handleFormChange} className="w-full bg-surface border border-surface-border rounded px-3 py-2 text-sm focus:border-desert-orange outline-none" />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                        <div>
+                          <label className="text-xs text-foreground/50 font-bold uppercase">Ticket/Info Link</label>
+                          <input name="ticket_link" type="url" value={editFormData.ticket_link || ""} onChange={handleFormChange} className="w-full bg-surface border border-surface-border rounded px-3 py-2 text-sm focus:border-desert-orange outline-none" />
+                        </div>
+                        
+                        <div>
+                          <label className="text-xs text-foreground/50 font-bold uppercase">Flyer Image</label>
+                          <div className="flex gap-2 mt-1">
+                            <input name="image_url" type="text" placeholder="Image URL..." value={editFormData.image_url || ""} onChange={handleFormChange} className="flex-1 bg-surface border border-surface-border rounded px-3 py-2 text-xs text-foreground/50 focus:border-desert-orange outline-none" />
+                            <label className="bg-desert-orange hover:bg-desert-pink text-white text-xs font-bold py-2 px-4 rounded cursor-pointer transition-colors flex items-center shrink-0">
+                              {isUploading ? "..." : "Upload"}
+                              <input type="file" accept="image/*" className="hidden" onChange={handleAdminImageUpload} disabled={isUploading} />
+                            </label>
+                          </div>
+                        </div>
+
+                      </div>
+                      <div>
+                        <label className="text-xs text-foreground/50 font-bold uppercase">Description</label>
+                        <textarea name="description" rows={3} value={editFormData.description || ""} onChange={handleFormChange} className="w-full bg-surface border border-surface-border rounded px-3 py-2 text-sm focus:border-desert-orange outline-none"></textarea>
+                      </div>
                     </div>
                   ) : (
                     <>
+                      <div className="flex gap-3 items-center mb-1">
+                        <span className="bg-desert-orange/20 text-desert-orange text-xs font-bold px-2 py-1 rounded">
+                          {event.category}
+                        </span>
+                        <span className="text-foreground/50 text-sm">{event.city}</span>
+                      </div>
                       <h3 className="text-2xl font-bold">{event.title}</h3>
-                      <p className="text-sm text-foreground/70">{event.date} | {event.venue_name}</p>
+                      <p className="text-sm text-foreground/70 line-clamp-3">{event.description}</p>
+                      <div className="text-xs text-foreground/50 pt-2 border-t border-surface-border mt-2">
+                        <p><strong>Venue:</strong> {event.venue_name} ({event.address}, {event.zip_code})</p>
+                        <p><strong>Date/Time:</strong> {event.date} | {(() => {
+                          const formatTime = (t: string) => {
+                            if(!t) return "";
+                            let [h, m] = t.split(":");
+                            let hr = parseInt(h);
+                            return `${hr % 12 || 12}:${m} ${hr >= 12 ? "PM" : "AM"} PT`;
+                          };
+                          return `${formatTime(event.start_time)} ${event.end_time ? `- ${formatTime(event.end_time)}` : ""}`;
+                        })()}</p>
+                        {event.ticket_link && <p><strong>Link:</strong> <a href={event.ticket_link} target="_blank" className="text-desert-orange hover:underline">{event.ticket_link}</a></p>}
+                        <p><strong>Submitter:</strong> {event.submitter_info || 'None provided'}</p>
+                      </div>
                     </>
                   )}
                 </div>
-                <div className="flex md:flex-col gap-2 shrink-0 min-w-[140px]">
-                  {!isEditing && activeTab === "pending" && <button onClick={() => handleApprove(event.id)} className="bg-neon-cyan/10 text-neon-cyan font-bold py-2 px-4 rounded border border-neon-cyan">Approve</button>}
-                  {!isEditing && activeTab === "live" && <button onClick={() => handleUnpublish(event.id)} className="bg-desert-orange/10 text-desert-orange font-bold py-2 px-4 rounded border border-desert-orange/50">Unpublish</button>}
-                  {!isEditing && <button onClick={() => startEditing(event)} className="bg-surface-border/50 font-bold py-2 px-4 rounded">Edit</button>}
-                  {!isEditing && <button onClick={() => handleDelete(event.id)} className="text-red-500 font-bold py-2 px-4 rounded">Delete</button>}
+
+                {event.image_url && !isEditing && (
+                  <div className="w-full md:w-32 h-40 shrink-0 bg-black rounded-lg overflow-hidden border border-surface-border">
+                    <img src={event.image_url} className="w-full h-full object-cover" alt="Flyer" />
+                  </div>
+                )}
+
+                <div className="flex md:flex-col gap-3 shrink-0 justify-center min-w-[140px]">
+                  {isEditing ? (
+                    <>
+                      <button onClick={(e) => { e.preventDefault(); handleSave(event.id); }} className="bg-neon-cyan hover:bg-neon-cyan/80 text-black font-bold py-2 px-4 rounded-lg transition-colors w-full">
+                        {isDuplicateMode ? "Save as New Event" : "Save Changes"}
+                      </button>
+                      <button onClick={() => {setEditingId(null); setIsDuplicateMode(false);}} className="bg-surface-border hover:bg-surface-border/80 text-white font-bold py-2 px-4 rounded-lg transition-colors w-full">
+                        Cancel
+                      </button>
+                    </>
+                  ) : activeTab === "pending" ? (
+                    <>
+                      <button onClick={() => handleApprove(event.id)} className="bg-neon-cyan/10 hover:bg-neon-cyan text-neon-cyan hover:text-black font-bold py-2 px-4 rounded-lg transition-colors border border-neon-cyan w-full">Approve</button>
+                      <button onClick={() => startEditing(event)} className="bg-surface-border/50 hover:bg-surface-border text-foreground font-bold py-2 px-4 rounded-lg transition-colors w-full">Edit</button>
+                      <button onClick={() => handleDelete(event.id)} className="bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white font-bold py-2 px-4 rounded-lg transition-colors border border-red-500/50 w-full">Reject</button>
+                    </>
+                  ) : (
+                    <>
+                      <button onClick={() => handleDuplicate(event)} className="bg-neon-cyan/20 hover:bg-neon-cyan text-neon-cyan hover:text-black font-bold py-2 px-4 rounded-lg transition-colors border border-neon-cyan w-full">
+                        Duplicate
+                      </button>
+                      <button onClick={() => handleToggleFeature(event.id, event.is_featured)} className={`${event.is_featured ? 'bg-surface-border text-foreground' : 'bg-desert-pink hover:bg-desert-pink/80 text-white'} font-bold py-2 px-4 rounded-lg transition-colors shadow-lg w-full`}>
+                        {event.is_featured ? "Unpin Event" : "Pin (Sponsored)"}
+                      </button>
+                      <button onClick={() => startEditing(event)} className="bg-surface-border/50 hover:bg-surface-border text-foreground font-bold py-2 px-4 rounded-lg transition-colors w-full">Edit</button>
+                      <button onClick={() => handleUnpublish(event.id)} className="bg-desert-orange/10 hover:bg-desert-orange text-desert-orange hover:text-white font-bold py-2 px-4 rounded-lg transition-colors border border-desert-orange/50 w-full">Unpublish</button>
+                    </>
+                  )}
                 </div>
               </div>
             );
