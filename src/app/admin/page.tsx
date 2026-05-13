@@ -185,8 +185,17 @@ export default function AdminDashboard() {
 
   async function handleSave(id?: string) {
     const targetId = id || editingId; 
+
+    // --- SAFETY CHECK FOR EMPTY TIMES ---
+    const safePayload = {
+      ...editFormData,
+      start_time: editFormData.start_time && editFormData.start_time !== "" ? editFormData.start_time : "12:00",
+      end_time: editFormData.end_time && editFormData.end_time !== "" ? editFormData.end_time : null,
+      is_approved: true
+    };
+
     if (isDuplicateMode) {
-      const { error } = await supabase.from("events").insert([editFormData]);
+      const { error } = await supabase.from("events").insert([safePayload]);
       if (!error) {
         fetchDashboardData(); 
         setEditingId(null);
@@ -195,7 +204,7 @@ export default function AdminDashboard() {
       } else alert("Error saving: " + error.message);
     } else {
       if (!targetId) return; 
-      const { error } = await supabase.from("events").update({ ...editFormData, is_approved: true }).eq("id", targetId);
+      const { error } = await supabase.from("events").update(safePayload).eq("id", targetId);
       if (!error) {
         fetchDashboardData();
         setEditingId(null);
