@@ -110,6 +110,8 @@ export default function Navbar() {
                 )}
               </div>
             ) : (
+              null
+              /* --- TEMPORARILY DISABLED LOGIN BUTTON ---
               <button 
                 onClick={() => setIsAuthOpen(true)} 
                 className="bg-neon-cyan/10 border border-neon-cyan text-neon-cyan text-xs sm:text-sm font-bold px-4 py-2 rounded-full hover:bg-neon-cyan hover:text-black transition-all cursor-pointer shadow-[0_0_10px_rgba(0,243,255,0.2)]"
@@ -118,6 +120,7 @@ export default function Navbar() {
               </button>
             )}
           </div>
+          */}
 
         </div>
       </nav>

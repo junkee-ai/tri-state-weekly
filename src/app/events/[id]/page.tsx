@@ -185,9 +185,11 @@ export default async function EventDetails({
 
             {/* --- NEW: COMMENT SECTION --- */}
             {/* It is now INSIDE the right column, so it aligns perfectly with the text! */}
+            {/* --- TEMPORARILY DISABLED COMMENT SECTION --- 
             <div className="w-full">
               <CommentSection eventId={event.id} />
             </div>
+            */}
 
           </div>
         </div>
